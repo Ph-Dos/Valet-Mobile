@@ -1,15 +1,9 @@
 import { Text, View } from "react-native";
 
-export default function Index() {
+export default function Receive() {
     return (
-        <View
-            style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-            }}
-        >
-            <Text>Very simple structure of tabs.</Text>
+        <View className="flex-1 items-center justify-center ">
+            <Text className="text-xl font-bold text-blue-500">Welcome hh to Nativewind!</Text>
         </View>
     );
 }
