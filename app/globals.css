@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities { /* Using @layer utilities is often appropriate for single-property additions */
+    .dev-view {
+        @apply flex-1 items-center justify-center bg-[#1F1F1F]; /* This applies Tailwind's text-blue-500 utility */
+    }
+}
+
+
