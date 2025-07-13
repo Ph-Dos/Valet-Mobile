@@ -1,7 +1,8 @@
 import { Tabs } from 'expo-router';
-import { AntDesign, Feather, FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
+
     return (
         <Tabs screenOptions={{
             tabBarActiveTintColor: '#539DF3',
@@ -14,25 +15,38 @@ export default function TabLayout() {
                 title: 'Receive',
                 headerShown: false,
                 tabBarInactiveTintColor: '#8D949D',
-                tabBarIcon: ({ color }) => <AntDesign name="pluscircleo" size={24} color={color} />
+                tabBarIcon: ({ color }) => {
+                    return <MaterialIcons name="add-circle-outline" size={26} color={color} />;
+                }
             }} />
             <Tabs.Screen name='requests' options={{
                 title: 'Requests',
                 headerShown: false,
                 tabBarInactiveTintColor: '#8D949D',
-                tabBarIcon: ({ color }) => <FontAwesome6 name="magnifying-glass" size={24} color={color} />
+                tabBarIcon: ({ color }) => {
+                    return <MaterialIcons name="directions-car" size={26} color={color} />
+                },
+                tabBarBadge: 2,
+                tabBarBadgeStyle: {
+                    backgroundColor: 'tomato',
+                    color: 'white'
+                }
             }} />
             <Tabs.Screen name='inventory' options={{
                 title: 'Inventory',
                 headerShown: false,
                 tabBarInactiveTintColor: '#8D949D',
-                tabBarIcon: ({ color }) => <MaterialCommunityIcons name="message-alert-outline" size={26} color={color} />
+                tabBarIcon: ({ color }) => {
+                    return <MaterialIcons name="search" size={26} color={color} />;
+                }
             }} />
             <Tabs.Screen name='profile' options={{
                 title: 'Profile',
                 headerShown: false,
                 tabBarInactiveTintColor: '#8D949D',
-                tabBarIcon: ({ color }) => <Feather name="user" size={26} color={color} />
+                tabBarIcon: ({ color }) => {
+                    return <MaterialIcons name="person-outline" size={26} color={color} />;
+                }
             }} />
         </Tabs>
     );
