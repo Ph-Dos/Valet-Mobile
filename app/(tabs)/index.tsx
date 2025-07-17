@@ -1,4 +1,4 @@
-import { InitAObjModal } from "@/components/initArrivalObject";
+import { InitAdmisObjModal } from "@/components/initAdmissionObject";
 import { useState } from "react";
 import { View, Pressable, Text, TextInput, Keyboard } from "react-native";
 
@@ -17,13 +17,13 @@ export default function Receive() {
 
     return (
         <View className="dev-view gap-10">
-            <InitAObjModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
+            <InitAdmisObjModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
             <View className="justify-center items-center gap-2">
                 <TextInput
-                    onChangeText={setTextValue}
                     value={textValue}
-                    style={{ width: 340, height: 45 }}
+                    onChangeText={setTextValue}
                     className="bg-[#181818] rounded-md text-white text-center text-xl"
+                    style={{ width: 340, height: 45 }}
                     keyboardType="number-pad"
                     returnKeyType="done"
                     placeholder="123-456-7890"
@@ -32,8 +32,8 @@ export default function Receive() {
             </View>
             <Pressable onPress={handleTextValue}>
                 <View
-                    style={{ width: 360, height: 45 }}
                     className="bg-blue-400 rounded-lg justify-center items-center"
+                    style={{ width: 360, height: 45 }}
                 >
                     <Text className="font-semibold text-xl text-[#1F1F1F]">Park</Text>
                 </View>
