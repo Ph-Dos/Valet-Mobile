@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FlatList, View, Text, TextInput, Keyboard } from "react-native";
+import { FlatList, View, Text, TextInput, TouchableOpacity, Animated, Pressable } from "react-native";
 
 interface Props {
     placeHolder: string;
@@ -31,8 +31,39 @@ const collection: Card[] = [
 
 export function InitAdmisObjTB({ placeHolder }: Props) {
 
-    const [isFocused, setIsFocused] = useState(false)
-    const [value, setValue] = useState("")
+    const [isFocused, setIsFocused] = useState(false);
+    const [value, setValue] = useState("");
+
+    const opacity = useState(new Animated.Value(0))[0]
+
+    function handleDropDownOpen() {
+        setIsFocused(true);
+        Animated.timing(opacity, {
+            toValue: 1,
+            duration: 250,
+            useNativeDriver: true
+        }).start();
+    }
+
+    /**
+     *
+     *
+     * This funtion is causing problems with handleSelection(),
+     * when you press a container from the FlatList it closes the FlatList
+     * before the handleSelection() function can be called.
+     *
+     */
+
+    function handleDropDownClose() {
+        // setIsFocused(false);
+        // opacity.setValue(0);
+    }
+
+    function handleSelection(item: Card) {
+        setValue(item.displayName);
+        setIsFocused(false);
+        opacity.setValue(0);
+    }
 
     return (
         <View
@@ -42,19 +73,26 @@ export function InitAdmisObjTB({ placeHolder }: Props) {
             <TextInput
                 value={value}
                 onChangeText={(text: string) => { setValue(text) }}
-                onPress={() => { setIsFocused(true) }}
-                onEndEditing={() => { setIsFocused(false) }}
+                onPress={handleDropDownOpen}
+                onEndEditing={handleDropDownClose}
                 className="bg-[#181818] rounded-xl text-white text-xl pl-4"
                 style={{ width: 370, height: 40 }}
             />
             <FlatList
                 data={collection}
-                renderItem={({ item }) => {
+                renderItem={({ item }: { item: Card }) => {
                     if (isFocused && item.searchName.includes(value.toLowerCase())) {
                         return (
-                            <View className="bg-[#333333] items-center justify-center h-20">
-                                <Text className="font-semibold text-white">{item.displayName}</Text>
-                            </View>
+                            <Animated.View style={{ opacity }}>
+                                <TouchableOpacity onPress={() => { handleSelection(item) }}>
+                                    <View
+                                        className="bg-[#333333] items-center justify-center"
+                                        style={{ height: 40 }}
+                                    >
+                                        <Text className="font-semibold text-white">{item.displayName}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </Animated.View>
                         )
                     }
                     return <></>

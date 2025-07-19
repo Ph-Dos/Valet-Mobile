@@ -21,6 +21,7 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible }: Props) {
                 visible={modalVisible}
                 animationType="slide"
                 transparent={true}
+
             >
                 <Pressable
                     onPress={() => { setModalVisible(false); }}
