@@ -1,0 +1,36 @@
+{
+    "Brands": [
+        {
+            "displayName": "Ford",
+            "searchName": "ford"
+        },
+        {
+            "displayName": "BMW",
+            "searchName": "bmw"
+        },
+        {
+            "displayName": "Dodge",
+            "searchName": "dodge"
+        },
+        {
+            "displayName": "Honda",
+            "searchName": "honda"
+        },
+        {
+            "displayName": "Lexus",
+            "searchName": "lexus"
+        },
+        {
+            "displayName": "GMC",
+            "searchName": "gmc"
+        },
+        {
+            "displayName": "Cadillac",
+            "searchName": "cadillac"
+        },
+        {
+            "displayName": "Chevrolet",
+            "searchName": "Chevrolet"
+        }
+    ]
+}

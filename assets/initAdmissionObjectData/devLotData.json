@@ -1,0 +1,16 @@
+{
+    "Lots": [
+        {
+            "displayName": "West terrace",
+            "searchName": "west terrace"
+        },
+        {
+            "displayName": "South street",
+            "searchName": "souths treet"
+        },
+        {
+            "displayName": "North deck",
+            "searchName": "north deck"
+        }
+    ]
+}

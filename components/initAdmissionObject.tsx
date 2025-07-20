@@ -1,6 +1,10 @@
-import { Modal, View, SafeAreaView, Pressable, Text, TextInput, ScrollView } from "react-native";
+import { Modal, View, SafeAreaView, Pressable, Text, TextInput } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { InitAdmisObjTB } from "./initAdmissionObjectTextBox";
+import { useState } from "react";
+import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData";
+import { Brands } from "@/assets/initAdmissionObjectData/carBrands.json";
+import { Lots } from "@/assets/initAdmissionObjectData/devLotData.json";
 
 interface Props {
     modalVisible: boolean;
@@ -8,13 +12,13 @@ interface Props {
 }
 
 /**
- *
- * You need to add gesters to modal,
- *  1. Sliding down will clase the modal
- *
+*
  */
 
 export function InitAdmisObjModal({ modalVisible, setModalVisible }: Props) {
+
+    const [activeId, setActiveId] = useState(0);
+
     return (
         <SafeAreaView>
             <Modal
@@ -38,15 +42,28 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible }: Props) {
                     <View className="flex-1 pl-5 gap-5">
                         <Text className="font-bold text-[#8D949D] text-2xl ">Vehicle Details</Text>
                         <TextInput
+                            onPress={() => { setActiveId(0); }}
                             autoCapitalize="characters"
                             className="bg-[#181818] rounded-xl text-white text-xl pl-4"
                             style={{ width: 370, height: 40 }}
                             returnKeyType="done"
                             placeholder="License plate"
                         />
-                        <InitAdmisObjTB placeHolder="Brand" />
+                        <InitAdmisObjTB<basicTBData>
+                            data={Brands}
+                            id={1}
+                            setActiveId={setActiveId}
+                            activeId={activeId}
+                            placeholder="Brand"
+                        />
                         <Text className="font-bold text-[#8D949D] text-2xl ">Location Details</Text>
-                        <InitAdmisObjTB placeHolder="Lot" />
+                        <InitAdmisObjTB<basicTBData>
+                            data={Lots}
+                            id={2}
+                            setActiveId={setActiveId}
+                            activeId={activeId}
+                            placeholder="Lot"
+                        />
                     </View>
                 </View>
             </Modal>

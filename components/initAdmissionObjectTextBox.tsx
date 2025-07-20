@@ -1,42 +1,32 @@
 import { useState } from "react";
-import { FlatList, View, Text, TextInput, TouchableOpacity, Animated, Pressable } from "react-native";
+import { FlatList, View, Text, TextInput, TouchableOpacity, Animated } from "react-native";
+import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData";
 
-interface Props {
-    placeHolder: string;
-
+interface Props<T extends basicTBData> {
+    data: Array<T>;
+    id: number;
+    activeId: number;
+    setActiveId: (id: number) => void;
+    placeholder: string;
 }
 
 /**
- * This is very important.
- * You made this a seperate componenet b/c these are not normal text inputs,
- * They will have autom complete features, (e.g you type in a name an options come up)
- *
+ * You have tightly coupled the initAdmissionObject.tsx component to this one,
+ * for this component to work properly it MUST read state from the initAdmissionObject component.
  */
 
-interface Card {
-    displayName: string;
-    searchName: string;
-}
+export function InitAdmisObjTB<T extends basicTBData>({ data, id, activeId, setActiveId, placeholder }: Props<T>) {
 
-const collection: Card[] = [
-    { displayName: "Ford", searchName: "ford" },
-    { displayName: "BMW", searchName: "bmw" },
-    { displayName: "Ferrari", searchName: "ferrari" },
-    { displayName: "Lamboginie", searchName: "lamboginie" },
-    { displayName: "Porch", searchName: "porch" },
-    { displayName: "Chev", searchName: "chev" },
-    { displayName: "Honda", searchName: "honda" },
-    { displayName: "Dodge", searchName: "dodge" }
-];
-
-export function InitAdmisObjTB({ placeHolder }: Props) {
-
-    const [isFocused, setIsFocused] = useState(false);
     const [value, setValue] = useState("");
+    const [isFocused, setIsFocused] = useState(false);
+    const opacity = useState(new Animated.Value(0))[0];
 
-    const opacity = useState(new Animated.Value(0))[0]
+    if (activeId != id) {
+        opacity.setValue(0);
+    }
 
     function handleDropDownOpen() {
+        setActiveId(id);
         setIsFocused(true);
         Animated.timing(opacity, {
             toValue: 1,
@@ -45,21 +35,7 @@ export function InitAdmisObjTB({ placeHolder }: Props) {
         }).start();
     }
 
-    /**
-     *
-     *
-     * This funtion is causing problems with handleSelection(),
-     * when you press a container from the FlatList it closes the FlatList
-     * before the handleSelection() function can be called.
-     *
-     */
-
-    function handleDropDownClose() {
-        // setIsFocused(false);
-        // opacity.setValue(0);
-    }
-
-    function handleSelection(item: Card) {
+    function handleSelection(item: T) {
         setValue(item.displayName);
         setIsFocused(false);
         opacity.setValue(0);
@@ -74,14 +50,14 @@ export function InitAdmisObjTB({ placeHolder }: Props) {
                 value={value}
                 onChangeText={(text: string) => { setValue(text) }}
                 onPress={handleDropDownOpen}
-                onEndEditing={handleDropDownClose}
                 className="bg-[#181818] rounded-xl text-white text-xl pl-4"
                 style={{ width: 370, height: 40 }}
+                placeholder={placeholder}
             />
             <FlatList
-                data={collection}
-                renderItem={({ item }: { item: Card }) => {
-                    if (isFocused && item.searchName.includes(value.toLowerCase())) {
+                data={data}
+                renderItem={({ item }: { item: T }) => {
+                    if (activeId === id && isFocused && item.searchName.includes(value.toLowerCase())) {
                         return (
                             <Animated.View style={{ opacity }}>
                                 <TouchableOpacity onPress={() => { handleSelection(item) }}>
