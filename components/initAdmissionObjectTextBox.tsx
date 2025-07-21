@@ -2,11 +2,17 @@ import { useState } from "react";
 import { FlatList, View, Text, TextInput, TouchableOpacity, Animated } from "react-native";
 import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData";
 
+/**
+ * setData() should not use any, I need to think of a more robust way to transfer
+ * the value selected from a TB to the AdmissionObject with out passing the entire AdmissionObject.
+ */
+
 interface Props<T extends basicTBData> {
     data: Array<T>;
     id: number;
     activeId: number;
     setActiveId: (id: number) => void;
+    setData: (value: any) => void;
     placeholder: string;
 }
 
@@ -15,15 +21,18 @@ interface Props<T extends basicTBData> {
  * for this component to work properly it MUST read state from the initAdmissionObject component.
  */
 
-export function InitAdmisObjTB<T extends basicTBData>({ data, id, activeId, setActiveId, placeholder }: Props<T>) {
+export function InitAdmisObjTB<T extends basicTBData>({
+    data,
+    id,
+    activeId,
+    setActiveId,
+    setData,
+    placeholder
+}: Props<T>) {
 
     const [value, setValue] = useState("");
     const [isFocused, setIsFocused] = useState(false);
     const opacity = useState(new Animated.Value(0))[0];
-
-    if (activeId != id) {
-        opacity.setValue(0);
-    }
 
     function handleDropDownOpen() {
         setActiveId(id);
@@ -37,7 +46,12 @@ export function InitAdmisObjTB<T extends basicTBData>({ data, id, activeId, setA
 
     function handleSelection(item: T) {
         setValue(item.displayName);
+        setData(item.displayName);
         setIsFocused(false);
+        opacity.setValue(0);
+    }
+
+    if (activeId != id) {
         opacity.setValue(0);
     }
 

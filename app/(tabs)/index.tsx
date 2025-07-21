@@ -1,15 +1,22 @@
+import { AdmisObj } from "@/assets/initAdmissionObjectData/admisObj";
 import { InitAdmisObjModal } from "@/components/initAdmissionObject";
 import { useState } from "react";
 import { View, Pressable, Text, TextInput, Keyboard } from "react-native";
 
 export default function Receive() {
 
+    const admisObj: AdmisObj = {
+        phoneNumber: '',
+        vehicleDetails: {},
+        locationDetails: {}
+    };
+
     const [textValue, setTextValue] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
 
     // This is to test the ability to collect the string in the phone number box.
     const handleTextValue = (): void => {
-        console.log(textValue)
+        admisObj.phoneNumber = textValue;
         Keyboard.dismiss()
         setModalVisible(true)
         setTextValue('')
@@ -17,7 +24,7 @@ export default function Receive() {
 
     return (
         <View className="dev-view gap-10">
-            <InitAdmisObjModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
+            <InitAdmisObjModal admisObj={admisObj} modalVisible={modalVisible} setModalVisible={setModalVisible} />
             <View className="justify-center items-center gap-2">
                 <TextInput
                     value={textValue}

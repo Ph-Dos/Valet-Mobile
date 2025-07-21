@@ -5,17 +5,15 @@ import { useState } from "react";
 import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData";
 import { Brands } from "@/assets/initAdmissionObjectData/carBrands.json";
 import { Lots } from "@/assets/initAdmissionObjectData/devLotData.json";
+import { AdmisObj } from "@/assets/initAdmissionObjectData/admisObj";
 
 interface Props {
+    admisObj: AdmisObj;
     modalVisible: boolean;
     setModalVisible: (state: boolean) => void;
 }
 
-/**
-*
- */
-
-export function InitAdmisObjModal({ modalVisible, setModalVisible }: Props) {
+export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: Props) {
 
     const [activeId, setActiveId] = useState(0);
 
@@ -53,6 +51,7 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible }: Props) {
                             data={Brands}
                             id={1}
                             setActiveId={setActiveId}
+                            setData={(value: any) => { admisObj.vehicleDetails.brand = value }}
                             activeId={activeId}
                             placeholder="Brand"
                         />
@@ -61,6 +60,7 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible }: Props) {
                             data={Lots}
                             id={2}
                             setActiveId={setActiveId}
+                            setData={(value: any) => { admisObj.locationDetails.lot = value }}
                             activeId={activeId}
                             placeholder="Lot"
                         />
