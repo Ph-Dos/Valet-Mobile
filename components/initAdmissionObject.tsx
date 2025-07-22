@@ -51,7 +51,7 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                             data={Brands}
                             id={1}
                             setActiveId={setActiveId}
-                            setData={(value: any) => { admisObj.vehicleDetails.brand = value }}
+                            setData={(brand) => { admisObj.setBrand(brand); }}
                             activeId={activeId}
                             placeholder="Brand"
                         />
@@ -60,7 +60,7 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                             data={Lots}
                             id={2}
                             setActiveId={setActiveId}
-                            setData={(value: any) => { admisObj.locationDetails.lot = value }}
+                            setData={(lot) => { admisObj.setLot(lot); }}
                             activeId={activeId}
                             placeholder="Lot"
                         />
