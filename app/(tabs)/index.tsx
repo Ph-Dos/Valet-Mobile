@@ -18,7 +18,10 @@ export default function Receive() {
     };
 
     return (
-        <View className="dev-view gap-10">
+        <Pressable
+            onPress={Keyboard.dismiss}
+            className="dev-view flex-1 gap-10"
+        >
             <InitAdmisObjModal
                 admisObj={admisObj}
                 modalVisible={modalVisible}
@@ -28,22 +31,21 @@ export default function Receive() {
                 <TextInput
                     value={textValue}
                     onChangeText={setTextValue}
+                    keyboardType="number-pad"
                     className="bg-[#181818] rounded-md text-white text-center text-xl"
                     style={{ width: 340, height: 45 }}
-                    keyboardType="number-pad"
-                    returnKeyType="done"
                     placeholder="123-456-7890"
                 />
                 <Text className="text-[#8D949D]">Guest's mobile number</Text>
             </View>
             <Pressable onPress={handleTextValue}>
                 <View
-                    className="bg-blue-400 rounded-lg justify-center items-center"
-                    style={{ width: 360, height: 45 }}
+                    className="bg-blue-400 rounded-2xl justify-center items-center"
+                    style={{ width: 360, height: 50 }}
                 >
                     <Text className="font-semibold text-xl text-[#1F1F1F]">Park</Text>
                 </View>
             </Pressable>
-        </View >
+        </Pressable>
     );
 }

@@ -29,7 +29,7 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                     onPress={() => { setModalVisible(false); }}
                     style={{ height: 100 }}
                 />
-                <View className="flex-1 bg-[#2A2A2A]" >
+                <View className="flex-1 bg-[#2A2A2A] rounded-t-2xl" >
                     <Pressable
                         onPress={() => { setModalVisible(false); }}
                         className="items-end p-3 pr-5 self-end"
