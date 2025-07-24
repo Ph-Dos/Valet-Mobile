@@ -20,7 +20,7 @@ export default function Receive() {
     return (
         <Pressable
             onPress={Keyboard.dismiss}
-            className="dev-view flex-1 gap-10"
+            className="dev-view flex-1 gap-10 "
         >
             <InitAdmisObjModal
                 admisObj={admisObj}
