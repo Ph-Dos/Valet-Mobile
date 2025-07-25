@@ -65,7 +65,7 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                             activeId={activeId}
                             placeholder="Lot"
                         />
-                        <InitImageSet />
+                        <InitImageSet modalVisible={modalVisible} />
                     </View>
                 </View>
             </Modal>
