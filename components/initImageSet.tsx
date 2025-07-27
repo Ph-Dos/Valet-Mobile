@@ -1,11 +1,14 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import * as ImagePicker from "expo-image-picker";
-// import { getApps, initializeApp } from "firebase/app";
-// import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { useEffect, useState } from "react";
-import { Text, Pressable, ScrollView, Image } from "react-native";
+import Feather from '@expo/vector-icons/Feather';
 import {
-    documentDirectory,
+    ImagePickerOptions,
+    requestCameraPermissionsAsync,
+    launchCameraAsync,
+} from "expo-image-picker";
+import { useEffect, useState } from "react";
+import { Text, Pressable, View, Image, FlatList, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import {
+    cacheDirectory,
     getInfoAsync,
     makeDirectoryAsync,
     copyAsync,
@@ -17,7 +20,7 @@ interface Props {
     modalVisible: boolean
 }
 
-const imageDir = documentDirectory + 'images/';
+const imageDir = cacheDirectory + 'images/';
 async function initImageDir() {
     const dirInfo = await getInfoAsync(imageDir);
     if (!dirInfo.exists) {
@@ -25,28 +28,25 @@ async function initImageDir() {
     }
 }
 
+const option: ImagePickerOptions = {
+    mediaTypes: 'images',
+    allowsEditing: true,
+    aspect: [4, 3]
+};
+const boxWidth: number = 370;
+
 export function InitImageSet({ modalVisible }: Props) {
 
     const [images, setImages] = useState<Array<string>>([]);
-
-    const option: ImagePicker.ImagePickerOptions = {
-        mediaTypes: 'images',
-        allowsEditing: true,
-        aspect: [4, 3]
-    };
+    const [prevScroll, setPrevScroll] = useState(0);
+    const [index, setIndex] = useState(0);
 
     async function takePhoto() {
-        await ImagePicker.requestCameraPermissionsAsync();
-        let pickerResult = await ImagePicker.launchCameraAsync(option);
-        console.log({ pickerResult });
-        handleImages(pickerResult);
-    }
-
-    async function handleImages(pickerResult: ImagePicker.ImagePickerResult) {
+        await requestCameraPermissionsAsync();
+        let pickerResult = await launchCameraAsync(option);
         try {
             // setUploading(true);
             if (!pickerResult.canceled) {
-                console.log(pickerResult.assets[0].uri);
                 await loadImagesToDir(pickerResult.assets[0].uri);
             }
         } catch (e) {
@@ -74,28 +74,88 @@ export function InitImageSet({ modalVisible }: Props) {
         }
     }
 
+    async function freeAllImages() {
+        let dirInfo = await getInfoAsync(imageDir);
+        if (!dirInfo.exists) {
+            setImages([]);
+            setIndex(0);
+            return
+        }
+        await deleteAsync(imageDir, { idempotent: true });
+        dirInfo = await getInfoAsync(imageDir);
+        if (!dirInfo.exists) {
+            setImages([]);
+            setIndex(0);
+        } else {
+            alert("Images were not freed correctly. Restart App.");
+            throw Error("Images were not freed.");
+        }
+    }
+
+    function handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+        const curScroll = event.nativeEvent.contentOffset.x;
+        if (curScroll === prevScroll + boxWidth) {
+            setIndex(index + 1);
+            setPrevScroll(prevScroll + boxWidth);
+        } else if (curScroll === prevScroll - boxWidth) {
+            setIndex(index - 1);
+            setPrevScroll(prevScroll - boxWidth);
+        }
+    }
+
+    // NOTE: Everything bellow has bugs.
+
+    /**
+     * You are getting erros when you delete the secound to last images,
+     * it makes the index equal to the size of the images array so you are out of bounds by 1.
+     * ALso I thhink that the index is not being updates correctly by the boxWidth apprpoach.
+     */
+
+    async function freeImage() {
+        async function popIndex() {
+            if (images.length === 1) {
+                setImages([]);
+                return
+            }
+            setImages(
+                images.filter((value, indexOfValue) => indexOfValue !== index)
+            );
+        }
+        let files = await readDirectoryAsync(imageDir);
+        if (files.length === 0) {
+            throw Error("No images have been taken.");
+        }
+        await popIndex();
+        await deleteAsync(images[index], { idempotent: true });
+        files = await readDirectoryAsync(imageDir);
+        if (files.length === images.length - 1) {
+        } else {
+            throw Error("Image was not freed.")
+        }
+        if (images.length === index) {
+            setIndex(index - 1);
+        }
+        console.log(images.toString());
+    }
+
+    async function logImageDirState() {
+        freeAllImages();
+        const dirInfo = await getInfoAsync(imageDir);
+        console.log(`${imageDir} exists: ${dirInfo.exists}`);
+    }
+
     if (!modalVisible) {
         try {
-            const promises = images.map(async (uri) => {
-                const uriPath = await getInfoAsync(uri);
-                if (uriPath.exists) {
-                    try {
-                        await deleteAsync(uri, { idempotent: false });
-                    } catch (eInner) {
-                        console.log(eInner);
-                    }
-                }
-                const results = await Promise.all(promises);
-            })
-        } catch (eOutter) {
-            console.log(eOutter)
+            logImageDirState();
+        } catch (e) {
+            console.log(e);
         }
     } else if (images.length < 1) {
         return (
             <Pressable
-                onPress={() => { takePhoto(); }}
+                onPress={() => { takePhoto(); console.log(images.toString()) }}
                 className="bg-[#333333] rounded-xl justify-center items-center"
-                style={{ width: 370, height: 220 }}
+                style={{ width: boxWidth, height: 220 }}
             >
                 <MaterialCommunityIcons
                     name="file-image-plus-outline"
@@ -107,17 +167,48 @@ export function InitImageSet({ modalVisible }: Props) {
         );
     } else {
         return (
-            <ScrollView
-                horizontal={true}
-            >
-                {images.map((img) => (
-                    <Image
-                        key={img}
-                        source={{ uri: img }}
-                        style={{ width: 200, height: 200 }}
-                    />
-                ))}
-            </ScrollView>
+            <View style={{ width: boxWidth, height: 300 }} >
+                <View
+                    className='flex-row justify-between pt-3'
+                    style={{ height: 50 }}
+                >
+                    <TouchableOpacity
+                        onPress={() => { console.log(index); freeImage(); }}
+                    >
+                        <Feather
+                            name="x-circle"
+                            size={26}
+                            color="white"
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => { takePhoto(); }}
+                    >
+                        <Feather
+                            name="plus-square"
+                            size={26}
+                            color="white"
+                        />
+                    </TouchableOpacity>
+                </View>
+                <FlatList
+                    onMomentumScrollEnd={(event) => { handleScroll(event); }}
+                    data={images}
+                    keyExtractor={item => item.toString()}
+                    renderItem={({ item }) => {
+                        return (
+                            <Image
+                                source={{ uri: item }}
+                                style={{ width: boxWidth, height: 220 }}
+                                className='rounded-xl'
+                            />
+                        );
+                    }}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                />
+            </View>
         );
     }
 }
