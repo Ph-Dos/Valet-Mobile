@@ -1,11 +1,12 @@
 import { Modal, View, SafeAreaView, Pressable, Text, TextInput } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { InitAdmisObjTB } from "./initAdmissionObjectTextBox";
+import { InitAdmisObjTB } from "@/components/initAdmissionObjectTextBox";
 import { useState } from "react";
 import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData";
 import { Brands } from "@/assets/initAdmissionObjectData/carBrands.json";
 import { Lots } from "@/assets/initAdmissionObjectData/devLotData.json";
 import { AdmisObj } from "@/assets/initAdmissionObjectData/admisObj";
+import { InitImageSet } from "@/components/initImageSet";
 
 interface Props {
     admisObj: AdmisObj;
@@ -23,7 +24,6 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                 visible={modalVisible}
                 animationType="slide"
                 transparent={true}
-
             >
                 <Pressable
                     onPress={() => { setModalVisible(false); }}
@@ -63,6 +63,9 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                             setData={(lot) => { admisObj.setLot(lot); }}
                             activeId={activeId}
                             placeholder="Lot"
+                        />
+                        <InitImageSet
+                            modalVisible={modalVisible}
                         />
                     </View>
                 </View>
