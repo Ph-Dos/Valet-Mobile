@@ -24,7 +24,6 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                 visible={modalVisible}
                 animationType="slide"
                 transparent={true}
-
             >
                 <Pressable
                     onPress={() => { setModalVisible(false); }}
@@ -65,7 +64,9 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                             activeId={activeId}
                             placeholder="Lot"
                         />
-                        <InitImageSet modalVisible={modalVisible} />
+                        <InitImageSet
+                            modalVisible={modalVisible}
+                        />
                     </View>
                 </View>
             </Modal>
