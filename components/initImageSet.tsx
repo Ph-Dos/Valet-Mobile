@@ -6,12 +6,12 @@ import {
     launchCameraAsync,
 } from "expo-image-picker";
 import { useEffect, useState } from "react";
-import { Text, Pressable, View, Image, FlatList, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { Text, Pressable, View, Image, FlatList, TouchableOpacity } from "react-native";
 import {
-    cacheDirectory,
     getInfoAsync,
     makeDirectoryAsync,
     copyAsync,
+    cacheDirectory,
     readDirectoryAsync,
     deleteAsync
 } from "expo-file-system";
@@ -21,13 +21,6 @@ interface Props {
 }
 
 const imageDir = cacheDirectory + 'images/';
-async function initImageDir() {
-    const dirInfo = await getInfoAsync(imageDir);
-    if (!dirInfo.exists) {
-        await makeDirectoryAsync(imageDir, { intermediates: true });
-    }
-}
-
 const option: ImagePickerOptions = {
     mediaTypes: 'images',
     allowsEditing: true,
@@ -36,18 +29,23 @@ const option: ImagePickerOptions = {
 const boxWidth: number = 370;
 
 export function InitImageSet({ modalVisible }: Props) {
-
     const [images, setImages] = useState<Array<string>>([]);
-    const [prevScroll, setPrevScroll] = useState(0);
     const [index, setIndex] = useState(0);
 
+    async function initImageDir() {
+        let dirInfo = await getInfoAsync(imageDir);
+        if (!dirInfo.exists) {
+            await makeDirectoryAsync(imageDir, { intermediates: true });
+        }
+    }
+
     async function takePhoto() {
-        await requestCameraPermissionsAsync();
-        let pickerResult = await launchCameraAsync(option);
         try {
+            await requestCameraPermissionsAsync();
+            const pickerResult = await launchCameraAsync(option);
             // setUploading(true);
             if (!pickerResult.canceled) {
-                await loadImagesToDir(pickerResult.assets[0].uri);
+                await loadImageToDir(pickerResult.assets[0].uri);
             }
         } catch (e) {
             alert("Upload failed.");
@@ -55,7 +53,7 @@ export function InitImageSet({ modalVisible }: Props) {
         // setUploading(false);
     }
 
-    async function loadImagesToDir(uri: string) {
+    async function loadImageToDir(uri: string) {
         await initImageDir();
         const path = imageDir + new Date().getTime() + '.jpg';
         await copyAsync({ from: uri, to: path });
@@ -67,7 +65,10 @@ export function InitImageSet({ modalVisible }: Props) {
     }, []);
 
     async function displayImages() {
-        await initImageDir();
+        const dirInfo = await getInfoAsync(imageDir);
+        if (!dirInfo.exists) {
+            return
+        }
         const files = await readDirectoryAsync(imageDir);
         if (files.length > 0) {
             setImages(files.map(f => imageDir + f));
@@ -92,68 +93,40 @@ export function InitImageSet({ modalVisible }: Props) {
         }
     }
 
-    function handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
-        const curScroll = event.nativeEvent.contentOffset.x;
-        if (curScroll === prevScroll + boxWidth) {
-            setIndex(index + 1);
-            setPrevScroll(prevScroll + boxWidth);
-        } else if (curScroll === prevScroll - boxWidth) {
-            setIndex(index - 1);
-            setPrevScroll(prevScroll - boxWidth);
-        }
-    }
-
-    // NOTE: Everything bellow has bugs.
-
-    /**
-     * You are getting erros when you delete the secound to last images,
-     * it makes the index equal to the size of the images array so you are out of bounds by 1.
-     * ALso I thhink that the index is not being updates correctly by the boxWidth apprpoach.
-     */
-
     async function freeImage() {
-        async function popIndex() {
-            if (images.length === 1) {
-                setImages([]);
-                return
-            }
-            setImages(
-                images.filter((value, indexOfValue) => indexOfValue !== index)
-            );
-        }
         let files = await readDirectoryAsync(imageDir);
-        if (files.length === 0) {
-            throw Error("No images have been taken.");
+        if (files.length === 1 && images.length === 1) {
+            await deleteAsync(imageDir, { idempotent: true });
+            setImages([]);
+            setIndex(0);
+            return
         }
-        await popIndex();
         await deleteAsync(images[index], { idempotent: true });
+        const reducedArray = images.filter((value, indexOfValue) => indexOfValue !== index);
         files = await readDirectoryAsync(imageDir);
-        if (files.length === images.length - 1) {
-        } else {
-            throw Error("Image was not freed.")
+        if (files.length !== reducedArray.length) {
+            throw Error("Uneven image to URI count.");
         }
-        if (images.length === index) {
+        setImages(reducedArray);
+        if (index === reducedArray.length) {
             setIndex(index - 1);
         }
-        console.log(images.toString());
     }
 
-    async function logImageDirState() {
-        freeAllImages();
-        const dirInfo = await getInfoAsync(imageDir);
-        console.log(`${imageDir} exists: ${dirInfo.exists}`);
-    }
-
-    if (!modalVisible) {
+    useEffect(() => {
         try {
-            logImageDirState();
+            if (!modalVisible) {
+                freeAllImages();
+            }
         } catch (e) {
             console.log(e);
         }
-    } else if (images.length < 1) {
+    }, [modalVisible]);
+
+    if (images.length < 1) {
         return (
             <Pressable
-                onPress={() => { takePhoto(); console.log(images.toString()) }}
+                onPress={() => { takePhoto(); }}
                 className="bg-[#333333] rounded-xl justify-center items-center"
                 style={{ width: boxWidth, height: 220 }}
             >
@@ -173,7 +146,14 @@ export function InitImageSet({ modalVisible }: Props) {
                     style={{ height: 50 }}
                 >
                     <TouchableOpacity
-                        onPress={() => { console.log(index); freeImage(); }}
+                        onPress={() => {
+                            try {
+                                const wrapper = async () => { await freeImage(); };
+                                wrapper();
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }}
                     >
                         <Feather
                             name="x-circle"
@@ -192,7 +172,9 @@ export function InitImageSet({ modalVisible }: Props) {
                     </TouchableOpacity>
                 </View>
                 <FlatList
-                    onMomentumScrollEnd={(event) => { handleScroll(event); }}
+                    onMomentumScrollEnd={(ev) => {
+                        setIndex(Math.floor(ev.nativeEvent.contentOffset.x / boxWidth));
+                    }}
                     data={images}
                     keyExtractor={item => item.toString()}
                     renderItem={({ item }) => {
