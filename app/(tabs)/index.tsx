@@ -11,16 +11,16 @@ export default function Receive() {
 
     // This is to test the ability to collect the string in the phone number box.
     const handleTextValue = (): void => {
-        setAdmisObj(new AdmisObj(textValue))
-        Keyboard.dismiss()
-        setModalVisible(true)
-        setTextValue('')
+        setAdmisObj(new AdmisObj(textValue));
+        Keyboard.dismiss();
+        setModalVisible(true);
+        setTextValue('');
     };
 
     return (
         <Pressable
             onPress={Keyboard.dismiss}
-            className="dev-view flex-1 gap-10"
+            className="dev-view flex-1 gap-10 "
         >
             <InitAdmisObjModal
                 admisObj={admisObj}

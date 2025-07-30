@@ -1,4 +1,7 @@
+import { getInfoAsync, readDirectoryAsync } from "expo-file-system";
+
 export class AdmisObj {
+    initTime: string;
     phoneNumber?: string;
     vehicleDetails: {
         plate?: string,
@@ -12,9 +15,24 @@ export class AdmisObj {
     };
 
     constructor(phoneNumber?: string) {
+        this.initTime = new Date().getTime().toString();
         this.phoneNumber = phoneNumber;
         this.vehicleDetails = {};
         this.locationDetails = {};
+    }
+
+    /**
+     * Firebase methods
+     */
+    public async upload(imageDir: string, imageCount: number) {
+        const dir = await getInfoAsync(imageDir);
+        if (!dir.exists) {
+            throw Error("Null image directory.");
+        }
+        const dirInfo = await readDirectoryAsync(imageDir);
+        if (dirInfo.length !== imageCount) {
+            throw Error("file count does not match current image count.");
+        }
     }
 
     /**
