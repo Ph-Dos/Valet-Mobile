@@ -11,16 +11,17 @@ import {
     getInfoAsync,
     makeDirectoryAsync,
     copyAsync,
-    cacheDirectory,
     readDirectoryAsync,
     deleteAsync
 } from "expo-file-system";
 
 interface Props {
-    modalVisible: boolean
+    modalVisible: boolean;
+    imageDir: string;
+    imageCount: number;
+    setImageCount: (newImageCount: number) => void;
 }
 
-const imageDir = cacheDirectory + 'images/';
 const option: ImagePickerOptions = {
     mediaTypes: 'images',
     allowsEditing: true,
@@ -28,7 +29,7 @@ const option: ImagePickerOptions = {
 };
 const boxWidth: number = 370;
 
-export function InitImageSet({ modalVisible }: Props) {
+export function InitImageSet({ modalVisible, imageDir, imageCount, setImageCount }: Props) {
     const [images, setImages] = useState<Array<string>>([]);
     const [index, setIndex] = useState(0);
 
@@ -46,6 +47,7 @@ export function InitImageSet({ modalVisible }: Props) {
             // setUploading(true);
             if (!pickerResult.canceled) {
                 await loadImageToDir(pickerResult.assets[0].uri);
+                setImageCount(imageCount + 1);
             }
         } catch (e) {
             alert("Upload failed.");
@@ -91,6 +93,7 @@ export function InitImageSet({ modalVisible }: Props) {
             alert("Images were not freed correctly. Restart App.");
             throw Error("Images were not freed.");
         }
+        setImageCount(0);
     }
 
     async function freeImage() {
@@ -99,6 +102,7 @@ export function InitImageSet({ modalVisible }: Props) {
             await deleteAsync(imageDir, { idempotent: true });
             setImages([]);
             setIndex(0);
+            setImageCount(0);
             return
         }
         await deleteAsync(images[index], { idempotent: true });
@@ -111,6 +115,7 @@ export function InitImageSet({ modalVisible }: Props) {
         if (index === reducedArray.length) {
             setIndex(index - 1);
         }
+        setImageCount(imageCount - 1);
     }
 
     useEffect(() => {
