@@ -11,10 +11,10 @@ export default function Receive() {
 
     // This is to test the ability to collect the string in the phone number box.
     const handleTextValue = (): void => {
-        setAdmisObj(new AdmisObj(textValue))
-        Keyboard.dismiss()
-        setModalVisible(true)
-        setTextValue('')
+        setAdmisObj(new AdmisObj(textValue));
+        Keyboard.dismiss();
+        setModalVisible(true);
+        setTextValue('');
     };
 
     return (

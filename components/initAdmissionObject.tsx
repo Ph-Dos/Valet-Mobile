@@ -7,16 +7,19 @@ import { Brands } from "@/assets/initAdmissionObjectData/carBrands.json";
 import { Lots } from "@/assets/initAdmissionObjectData/devLotData.json";
 import { AdmisObj } from "@/assets/initAdmissionObjectData/admisObj";
 import { InitImageSet } from "@/components/initImageSet";
+import { cacheDirectory } from "expo-file-system";
 
 interface Props {
     admisObj: AdmisObj;
     modalVisible: boolean;
     setModalVisible: (state: boolean) => void;
 }
+const imageDir = cacheDirectory + 'images/';
 
 export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: Props) {
 
     const [activeId, setActiveId] = useState(0);
+    const [imageCount, setImageCount] = useState(0);
 
     return (
         <SafeAreaView>
@@ -66,6 +69,9 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                         />
                         <InitImageSet
                             modalVisible={modalVisible}
+                            imageDir={imageDir}
+                            imageCount={imageCount}
+                            setImageCount={(newImageCount: number) => { setImageCount(newImageCount); }}
                         />
                     </View>
                 </View>
