@@ -15,6 +15,7 @@ import {
     deleteAsync
 } from "expo-file-system";
 
+export type PathPair = [string, string];
 interface Props {
     modalVisible: boolean;
     imageDir: string;
@@ -81,6 +82,8 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
     async function freeAllImages() {
         let dirInfo = await getInfoAsync(imageDir);
         if (!dirInfo.exists) {
+            setImageURIs([]);
+            setIndex(0);
             return
         }
         await deleteAsync(imageDir, { idempotent: true });
@@ -180,7 +183,7 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
                     renderItem={({ item }) => {
                         return (
                             <Image
-                                source={{ uri: item }}
+                                source={{ uri: item[1] }}
                                 style={{ width: boxWidth, height: 220 }}
                                 className='rounded-xl'
                             />
