@@ -6,7 +6,7 @@ import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData
 import { Brands } from "@/assets/initAdmissionObjectData/carBrands.json";
 import { Lots } from "@/assets/initAdmissionObjectData/devLotData.json";
 import { AdmisObj } from "@/assets/initAdmissionObjectData/admisObj";
-import { InitImageSet } from "@/components/initImageSet";
+import { PathPair, InitImageSet } from "@/components/initImageSet";
 import { cacheDirectory } from "expo-file-system";
 
 interface Props {
@@ -19,7 +19,7 @@ const imageDir = cacheDirectory + 'images/';
 export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: Props) {
 
     const [activeId, setActiveId] = useState(0);
-    const [imageCount, setImageCount] = useState(0);
+    const [imagePaths, setImagePaths] = useState<Array<PathPair>>([]);
 
     return (
         <SafeAreaView>
@@ -70,9 +70,26 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                         <InitImageSet
                             modalVisible={modalVisible}
                             imageDir={imageDir}
-                            imageCount={imageCount}
-                            setImageCount={(newImageCount: number) => { setImageCount(newImageCount); }}
+                            imagePaths={imagePaths}
+                            setImagePaths={(updatedImages: Array<PathPair>) => { setImagePaths(updatedImages); }}
                         />
+                        <Pressable
+                            onPress={async () => {
+                                try {
+                                    await admisObj.upload(imageDir, imagePaths);
+                                } catch (e) {
+                                    console.log(e);
+                                }
+                            }}
+                            className="pt-10"
+                        >
+                            <View
+                                className="bg-blue-400 rounded-2xl justify-center items-center"
+                                style={{ width: 360, height: 50 }}
+                            >
+                                <Text className="font-semibold text-xl text-[#1F1F1F]">Done</Text>
+                            </View>
+                        </Pressable>
                     </View>
                 </View>
             </Modal>
