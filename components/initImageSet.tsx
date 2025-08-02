@@ -15,12 +15,11 @@ import {
     deleteAsync
 } from "expo-file-system";
 
-export type PathPair = [string, string];
 interface Props {
     modalVisible: boolean;
     imageDir: string;
-    imagePaths: Array<PathPair>;
-    setImagePaths: (updatedImages: Array<PathPair>) => void;
+    imageURIs: Array<string>;
+    setImageURIs: (updatedImages: Array<string>) => void;
 }
 
 const option: ImagePickerOptions = {
@@ -30,7 +29,7 @@ const option: ImagePickerOptions = {
 };
 const boxWidth: number = 370;
 
-export function InitImageSet({ modalVisible, imageDir, imagePaths, setImagePaths }: Props) {
+export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }: Props) {
     const [index, setIndex] = useState(0);
 
     async function initImageDir() {
@@ -58,9 +57,8 @@ export function InitImageSet({ modalVisible, imageDir, imagePaths, setImagePaths
         try {
             await initImageDir();
             const path = imageDir + new Date().getTime() + '.jpg';
-            const newPath: PathPair = [uri, path]
             await copyAsync({ from: uri, to: path });
-            setImagePaths([newPath, ...imagePaths]);
+            setImageURIs([path, ...imageURIs]);
         } catch (e) {
             console.log(e);
         }
@@ -77,21 +75,21 @@ export function InitImageSet({ modalVisible, imageDir, imagePaths, setImagePaths
         }
         const files = await readDirectoryAsync(imageDir);
         if (files.length > 0) {
-            setImagePaths(files.map((file: string, index: number) => [imagePaths[index][1], imageDir + file]));
+            setImageURIs(files.map((file: string) => imageDir + file));
         }
     }
 
     async function freeAllImages() {
         let dirInfo = await getInfoAsync(imageDir);
         if (!dirInfo.exists) {
-            setImagePaths([]);
+            setImageURIs([]);
             setIndex(0);
             return
         }
         await deleteAsync(imageDir, { idempotent: true });
         dirInfo = await getInfoAsync(imageDir);
         if (!dirInfo.exists) {
-            setImagePaths([]);
+            setImageURIs([]);
             setIndex(0);
         } else {
             alert("Images were not freed correctly. Restart App.");
@@ -101,19 +99,19 @@ export function InitImageSet({ modalVisible, imageDir, imagePaths, setImagePaths
 
     async function freeImage() {
         let files = await readDirectoryAsync(imageDir);
-        if (files.length === 1 && imagePaths.length === 1) {
+        if (files.length === 1 && imageURIs.length === 1) {
             await deleteAsync(imageDir, { idempotent: true });
-            setImagePaths([]);
+            setImageURIs([]);
             setIndex(0);
             return
         }
-        await deleteAsync(imagePaths[index][1], { idempotent: true });
-        const reducedArray = imagePaths.filter((_, indexOfValue) => indexOfValue !== index);
+        await deleteAsync(imageURIs[index], { idempotent: true });
+        const reducedArray = imageURIs.filter((_, indexOfValue) => indexOfValue !== index);
         files = await readDirectoryAsync(imageDir);
         if (files.length !== reducedArray.length) {
             throw Error("Uneven image to URI count.");
         }
-        setImagePaths(reducedArray);
+        setImageURIs(reducedArray);
         if (index === reducedArray.length) {
             setIndex(index - 1);
         }
@@ -129,7 +127,7 @@ export function InitImageSet({ modalVisible, imageDir, imagePaths, setImagePaths
         }
     }, [modalVisible]);
 
-    if (imagePaths.length < 1) {
+    if (imageURIs.length < 1) {
         return (
             <Pressable
                 onPress={() => { takePhoto(); }}
@@ -168,7 +166,7 @@ export function InitImageSet({ modalVisible, imageDir, imagePaths, setImagePaths
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => { takePhoto(); console.log(imagePaths); }}
+                        onPress={() => { takePhoto(); console.log(imageURIs); }}
                     >
                         <Feather
                             name="plus-square"
@@ -181,12 +179,12 @@ export function InitImageSet({ modalVisible, imageDir, imagePaths, setImagePaths
                     onMomentumScrollEnd={(ev) => {
                         setIndex(Math.floor(ev.nativeEvent.contentOffset.x / boxWidth));
                     }}
-                    data={imagePaths}
+                    data={imageURIs}
                     keyExtractor={item => item.toString()}
                     renderItem={({ item }) => {
                         return (
                             <Image
-                                source={{ uri: item[1] }}
+                                source={{ uri: item }}
                                 style={{ width: boxWidth, height: 220 }}
                                 className='rounded-xl'
                             />

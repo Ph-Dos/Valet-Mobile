@@ -6,7 +6,7 @@ import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData
 import { Brands } from "@/assets/initAdmissionObjectData/carBrands.json";
 import { Lots } from "@/assets/initAdmissionObjectData/devLotData.json";
 import { AdmisObj } from "@/assets/initAdmissionObjectData/admisObj";
-import { PathPair, InitImageSet } from "@/components/initImageSet";
+import { InitImageSet } from "@/components/initImageSet";
 import { cacheDirectory } from "expo-file-system";
 
 interface Props {
@@ -19,7 +19,7 @@ const imageDir = cacheDirectory + 'images/';
 export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: Props) {
 
     const [activeId, setActiveId] = useState(0);
-    const [imagePaths, setImagePaths] = useState<Array<PathPair>>([]);
+    const [imageURIs, setImageURIs] = useState<Array<string>>([]);
 
     return (
         <SafeAreaView>
@@ -70,13 +70,15 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                         <InitImageSet
                             modalVisible={modalVisible}
                             imageDir={imageDir}
-                            imagePaths={imagePaths}
-                            setImagePaths={(updatedImages: Array<PathPair>) => { setImagePaths(updatedImages); }}
+                            imageURIs={imageURIs}
+                            setImageURIs={(updatedURIs: Array<string>) => { setImageURIs(updatedURIs); }}
                         />
                         <Pressable
                             onPress={async () => {
                                 try {
-                                    await admisObj.upload(imageDir, imagePaths);
+                                    if (await admisObj.upload(imageDir, imageURIs)) {
+                                        setModalVisible(false);
+                                    }
                                 } catch (e) {
                                     console.log(e);
                                 }
