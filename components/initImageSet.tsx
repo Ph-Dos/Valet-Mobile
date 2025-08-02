@@ -15,7 +15,6 @@ import {
     deleteAsync
 } from "expo-file-system";
 
-export type PathPair = [string, string];
 interface Props {
     modalVisible: boolean;
     imageDir: string;
@@ -183,7 +182,7 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
                     renderItem={({ item }) => {
                         return (
                             <Image
-                                source={{ uri: item[1] }}
+                                source={{ uri: item }}
                                 style={{ width: boxWidth, height: 220 }}
                                 className='rounded-xl'
                             />
