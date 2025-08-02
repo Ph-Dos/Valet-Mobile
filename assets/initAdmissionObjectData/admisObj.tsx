@@ -2,7 +2,6 @@ import { getInfoAsync, readDirectoryAsync } from "expo-file-system";
 import { storage, db } from "@/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
-import { PathPair } from "@/components/initImageSet";
 
 export class AdmisObj {
     initTime: string;
@@ -28,39 +27,54 @@ export class AdmisObj {
     /**
      * Firebase methods
      */
-    public async upload(imageDir: string, images: Array<PathPair>) {
-        const dir = await getInfoAsync(imageDir);
+    public async upload(dirName?: string, URIs?: Array<string>) {
+        try {
+            if (dirName && URIs) {
+                await this.uploadUnstructData(dirName, URIs);
+            }
+            return true;
+        } catch (e) {
+            console.log(e);
+        }
+        return false;
+    }
+
+    private async uploadUnstructData(dirName: string, URIs: Array<string>) {
+        const dir = await getInfoAsync(dirName);
         if (!dir.exists) {
             throw Error("Null image directory.");
         }
-        const dirInfo = await readDirectoryAsync(imageDir);
-        if (dirInfo.length !== images.length) {
+        const dirInfo = await readDirectoryAsync(dirName);
+        if (dirInfo.length !== URIs.length) {
             throw Error("file count does not match current image count.");
         }
-
-        images.forEach(async (uri: PathPair, index: number) => {
-            const response = await fetch(uri[0]);
-            const blob = await response.blob();
-            const storageRef = ref(storage, "Test/" + uri[1].split(/images\/|.jpg/).at(-2));
-            const uploadTask = uploadBytesResumable(storageRef, blob);
-
-            // Show state
-            uploadTask.on(
-                "state_changed",
-                ((snapshot) => {
-                    const prog = (snapshot.bytesTransferred / snapshot.totalBytes * 100);
-                    console.log(`Image ${index + 1} of ${images.length}: ${prog.toPrecision(4)}% done.`);
-                }),
-                ((error) => {
-                    console.log(error);
-                }),
-                (() => {
-                    getDownloadURL(uploadTask.snapshot.ref).then(async (downloadUrl) => {
-                        console.log(`File saved at: ${downloadUrl}`);
-                    })
-                })
-            )
+        const downloadPromises = URIs.map(async (URI: string) => {
+            return this.uploadIndividual(URI);
         });
+        const downloadUrls = await Promise.all(downloadPromises);
+        console.log(downloadUrls);
+    }
+
+    private async uploadIndividual(URI: string) {
+        const response = await fetch(URI);
+        const blob = await response.blob();
+        const storageRef = ref(storage, "Test/" + new Date().getTime());
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+
+        // Show state
+        // uploadTask.on(
+        //     "state_changed",
+        //     ((error) => {
+        //         console.log(error);
+        //     }),
+        //     (() => {
+        //         getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+        //             return downloadUrl;
+        //         })
+        //     })
+        // )
+        await uploadTask;
+        return await getDownloadURL(uploadTask.snapshot.ref);
     }
 
     /**
