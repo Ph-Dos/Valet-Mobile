@@ -21,7 +21,6 @@ interface Props {
     imageURIs: Array<string>;
     setImageURIs: (updatedImages: Array<string>) => void;
 }
-
 const option: ImagePickerOptions = {
     mediaTypes: 'images',
     allowsEditing: true,
@@ -33,7 +32,7 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
     const [index, setIndex] = useState(0);
 
     async function initImageDir() {
-        let dirInfo = await getInfoAsync(imageDir);
+        const dirInfo = await getInfoAsync(imageDir);
         if (!dirInfo.exists) {
             await makeDirectoryAsync(imageDir, { intermediates: true });
         }
@@ -82,8 +81,6 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
     async function freeAllImages() {
         let dirInfo = await getInfoAsync(imageDir);
         if (!dirInfo.exists) {
-            setImageURIs([]);
-            setIndex(0);
             return
         }
         await deleteAsync(imageDir, { idempotent: true });
@@ -152,8 +149,7 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
                     <TouchableOpacity
                         onPress={() => {
                             try {
-                                const wrapper = async () => { await freeImage(); };
-                                wrapper();
+                                freeImage();
                             } catch (e) {
                                 console.log(e);
                             }
@@ -166,7 +162,7 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => { takePhoto(); console.log(imageURIs); }}
+                        onPress={() => { takePhoto(); }}
                     >
                         <Feather
                             name="plus-square"
