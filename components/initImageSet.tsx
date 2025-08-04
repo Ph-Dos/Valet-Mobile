@@ -81,8 +81,6 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
     async function freeAllImages() {
         let dirInfo = await getInfoAsync(imageDir);
         if (!dirInfo.exists) {
-            setImageURIs([]);
-            setIndex(0);
             return
         }
         await deleteAsync(imageDir, { idempotent: true });
