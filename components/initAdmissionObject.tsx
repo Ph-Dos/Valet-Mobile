@@ -1,13 +1,14 @@
 import { Modal, View, SafeAreaView, Pressable, Text, TextInput } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { InitAdmisObjTB } from "@/components/initAdmissionObjectTextBox";
-import { useState } from "react";
 import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData";
 import { Brands } from "@/assets/initAdmissionObjectData/carBrands.json";
 import { Lots } from "@/assets/initAdmissionObjectData/devLotData.json";
-import { AdmisObj } from "@/assets/initAdmissionObjectData/admisObj";
+import { AdmisObj, UploadInfo } from "@/assets/initAdmissionObjectData/admisObj";
 import { InitImageSet } from "@/components/initImageSet";
 import { cacheDirectory } from "expo-file-system";
+import { useState } from "react";
+import { Uploading } from "./uploading";
 
 interface Props {
     admisObj: AdmisObj;
@@ -20,6 +21,30 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
 
     const [activeId, setActiveId] = useState(0);
     const [imageURIs, setImageURIs] = useState<Array<string>>([]);
+    const [uploadInfo, setUploadInfo] = useState<UploadInfo>({ isUploading: false, total: 0, sent: 0 });
+    const [isUploading, setIsUploading] = useState(false);
+    const [prog, setProg] = useState(0);
+
+    // NO GENERALIZING YOU TARD, MAKE IT WORK FIRST.
+
+    async function handleUpload() {
+        try {
+            await admisObj.upload(
+                uploadInfo,
+                ((x: UploadInfo) => {
+                    setUploadInfo(x);
+                    setIsUploading(uploadInfo.isUploading);
+                    setProg(uploadInfo.total ? uploadInfo.sent / uploadInfo.total * 100 : 0)
+                }),
+                imageDir,
+                imageURIs
+            );
+        } catch (e) {
+            console.log(e);
+        }
+        setUploadInfo({ isUploading: false, total: 0, sent: 0 });
+        setIsUploading(false);
+    }
 
     return (
         <SafeAreaView>
@@ -41,6 +66,11 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                         <MaterialCommunityIcons name="window-close" size={30} color="white" />
                     </Pressable>
                     <View className="flex-1 pl-5 gap-5">
+                        <Uploading
+                            onDismiss={() => { setModalVisible(false); }}
+                            visible={isUploading}
+                            prog={prog}
+                        />
                         <Text className="font-bold text-[#8D949D] text-2xl ">Vehicle Details</Text>
                         <TextInput
                             onPress={() => { setActiveId(0); }}
@@ -74,15 +104,7 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                             setImageURIs={(updatedURIs: Array<string>) => { setImageURIs(updatedURIs); }}
                         />
                         <Pressable
-                            onPress={async () => {
-                                try {
-                                    if (await admisObj.upload(imageDir, imageURIs)) {
-                                        setModalVisible(false);
-                                    }
-                                } catch (e) {
-                                    console.log(e);
-                                }
-                            }}
+                            onPress={() => { handleUpload(); }}
                             className="pt-10"
                         >
                             <View
