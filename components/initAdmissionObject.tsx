@@ -22,8 +22,6 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
     const [activeId, setActiveId] = useState(0);
     const [imageURIs, setImageURIs] = useState<Array<string>>([]);
     const [uploadInfo, setUploadInfo] = useState<UploadInfo>({ isUploading: false, total: 0, sent: 0 });
-    const [isUploading, setIsUploading] = useState(false);
-    const [prog, setProg] = useState(0);
 
     // NO GENERALIZING YOU TARD, MAKE IT WORK FIRST.
 
@@ -31,10 +29,12 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
         try {
             await admisObj.upload(
                 uploadInfo,
-                ((x: UploadInfo) => {
-                    setUploadInfo(x);
-                    setIsUploading(uploadInfo.isUploading);
-                    setProg(uploadInfo.total ? uploadInfo.sent / uploadInfo.total * 100 : 0)
+                (() => {
+                    setUploadInfo({
+                        isUploading: uploadInfo.isUploading,
+                        total: uploadInfo.total,
+                        sent: uploadInfo.sent
+                    });
                 }),
                 imageDir,
                 imageURIs
@@ -43,7 +43,6 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
             console.log(e);
         }
         setUploadInfo({ isUploading: false, total: 0, sent: 0 });
-        setIsUploading(false);
     }
 
     return (
@@ -68,8 +67,8 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                     <View className="flex-1 pl-5 gap-5">
                         <Uploading
                             onDismiss={() => { setModalVisible(false); }}
-                            visible={isUploading}
-                            prog={prog}
+                            visible={uploadInfo.isUploading}
+                            prog={uploadInfo.total ? uploadInfo.sent / uploadInfo.total * 100 : 0}
                         />
                         <Text className="font-bold text-[#8D949D] text-2xl ">Vehicle Details</Text>
                         <TextInput

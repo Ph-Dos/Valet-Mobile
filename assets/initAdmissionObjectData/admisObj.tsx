@@ -8,7 +8,6 @@ export interface UploadInfo {
     total: number;
     sent: number;
 }
-export type SetUploadInfo = <T extends UploadInfo>(x: T) => void;
 
 export class AdmisObj {
     initTime: string;
@@ -24,7 +23,7 @@ export class AdmisObj {
         floor?: number
     };
     private uploadInfo: UploadInfo = { isUploading: false, total: 0, sent: 0 };
-    private setuploadInfo: SetUploadInfo = ((x: UploadInfo) => { return; })
+    private setuploadInfo = () => { return; };
 
 
     constructor(phoneNumber?: string) {
@@ -37,7 +36,7 @@ export class AdmisObj {
     /**
      * Firebase methods
      */
-    public async upload<T extends UploadInfo>(uploadInfo: T, setUploadInfo: SetUploadInfo, dirName?: string, URIs?: Array<string>,) {
+    public async upload<T extends UploadInfo>(uploadInfo: T, setUploadInfo: () => void, dirName?: string, URIs?: Array<string>,) {
         this.uploadInfo = uploadInfo;
         this.setuploadInfo = setUploadInfo;
         try {
@@ -49,7 +48,7 @@ export class AdmisObj {
             console.log(e);
         } finally {
             this.uploadInfo.isUploading = false;
-            this.setuploadInfo(this.uploadInfo);
+            this.setuploadInfo();
         }
     }
 
@@ -63,7 +62,7 @@ export class AdmisObj {
             throw Error("file count does not match current URI count.");
         }
         this.uploadInfo.isUploading = true;
-        this.setuploadInfo(this.uploadInfo);
+        this.setuploadInfo();
         const downloadPromises = URIs.map(async (URI: string, index: number) => {
             return this.uploadIndividual(URI, index);
         });
@@ -73,14 +72,14 @@ export class AdmisObj {
 
     private async uploadIndividual(URI: string, index: number) {
         this.uploadInfo.total += 1;
-        this.setuploadInfo(this.uploadInfo);
+        this.setuploadInfo();
         const response = await fetch(URI);
         const blob = await response.blob();
         const storageRef = ref(storage, "Test/" + new Date().getTime() + index);
         const uploadTask = uploadBytesResumable(storageRef, blob);
         await uploadTask;
         this.uploadInfo.sent += 1;
-        this.setuploadInfo(this.uploadInfo);
+        this.setuploadInfo();
         return await getDownloadURL(uploadTask.snapshot.ref);
     }
 
