@@ -5,7 +5,7 @@ import { View, Pressable, Text, TextInput, Keyboard } from "react-native";
 
 export default function Receive() {
 
-    const [textValue, setTextValue] = useState('');
+    const [textValue, setTextValue] = useState<undefined | string>(undefined);
     const [modalVisible, setModalVisible] = useState(false);
     const [admisObj, setAdmisObj] = useState(new AdmisObj());
 
@@ -14,7 +14,7 @@ export default function Receive() {
         setAdmisObj(new AdmisObj(textValue));
         Keyboard.dismiss();
         setModalVisible(true);
-        setTextValue('');
+        setTextValue(undefined);
     };
 
     return (

@@ -1,7 +1,7 @@
 import { getInfoAsync, readDirectoryAsync } from "expo-file-system";
 import { storage, db } from "@/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 
 export interface UploadInfo {
     isUploading: boolean;
@@ -9,8 +9,7 @@ export interface UploadInfo {
     sent: number;
 }
 
-export class AdmisObj {
-    initTime: string;
+interface Data {
     phoneNumber?: string;
     vehicleDetails: {
         plate?: string,
@@ -22,15 +21,17 @@ export class AdmisObj {
         lot?: string,
         floor?: number
     };
+    URLs?: Array<string>;
+}
+
+export class AdmisObj {
+    data: Data;
     private uploadInfo: UploadInfo = { isUploading: false, total: 0, sent: 0 };
     private setuploadInfo = () => { return; };
 
 
     constructor(phoneNumber?: string) {
-        this.initTime = new Date().getTime().toString();
-        this.phoneNumber = phoneNumber;
-        this.vehicleDetails = {};
-        this.locationDetails = {};
+        this.data = { phoneNumber: phoneNumber, vehicleDetails: {}, locationDetails: {} }
     }
 
     /**
@@ -41,8 +42,9 @@ export class AdmisObj {
         this.setuploadInfo = setUploadInfo;
         try {
             if (dirName && URIs) {
-                await this.uploadURIs(dirName, URIs);
+                this.data.URLs = await this.uploadURIs(dirName, URIs);
             }
+            this.saveRecord();
             return true;
         } catch (e) {
             console.log(e);
@@ -52,10 +54,21 @@ export class AdmisObj {
         }
     }
 
+    private async saveRecord() {
+        try {
+            if (this.data.phoneNumber) {
+                const docRef = await addDoc(collection(db, "admissionObjects"), this.data)
+                console.log(`Saved doc: ${docRef.id}`);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     private async uploadURIs(dirName: string, URIs: Array<string>) {
         const dir = await getInfoAsync(dirName);
         if (!dir.exists) {
-            throw Error("Null image directory.");
+            return [];
         }
         const dirInfo = await readDirectoryAsync(dirName);
         if (dirInfo.length !== URIs.length) {
@@ -66,8 +79,7 @@ export class AdmisObj {
         const downloadPromises = URIs.map(async (URI: string, index: number) => {
             return this.uploadIndividual(URI, index);
         });
-        const downloadURLs = await Promise.all(downloadPromises);
-        console.log(downloadURLs);
+        return Promise.all(downloadPromises);
     }
 
     private async uploadIndividual(URI: string, index: number) {
@@ -87,17 +99,17 @@ export class AdmisObj {
      * vehicleDetails methods
      */
     public setPlate(plate: string) {
-        this.vehicleDetails.plate = plate;
+        this.data.vehicleDetails.plate = plate;
     }
     public setBrand(brand: string) {
-        this.vehicleDetails.brand = brand;
+        this.data.vehicleDetails.brand = brand;
     }
 
     /**
      * locationDetails methods
      */
     public setLot(lot: string) {
-        this.vehicleDetails.brand = lot;
+        this.data.locationDetails.lot = lot;
     }
 
 }

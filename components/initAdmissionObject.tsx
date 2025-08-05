@@ -43,6 +43,9 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
             console.log(e);
         }
         setUploadInfo({ isUploading: false, total: 0, sent: 0 });
+        if (modalVisible) {
+            setModalVisible(false);
+        }
     }
 
     return (
