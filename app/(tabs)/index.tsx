@@ -38,7 +38,7 @@ export default function Receive() {
                 />
                 <Text className="text-[#8D949D]">Guest's mobile number</Text>
             </View>
-            <Pressable onPress={handleTextValue}>
+            <Pressable onPress={() => textValue && handleTextValue()}>
                 <View
                     className="bg-blue-400 rounded-2xl justify-center items-center"
                     style={{ width: 360, height: 50 }}
