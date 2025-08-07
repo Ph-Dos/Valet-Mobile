@@ -1,14 +1,13 @@
 import { Modal, View, SafeAreaView, Pressable, Text, TextInput } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { InitAdmisObjTB } from "@/components/initAdmissionObjectTextBox";
-import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData";
-import { Brands } from "@/assets/initAdmissionObjectData/carBrands.json";
-import { Lots } from "@/assets/initAdmissionObjectData/devLotData.json";
-import { AdmisObj, UploadInfo } from "@/assets/initAdmissionObjectData/admisObj";
-import { InitImageSet } from "@/components/initImageSet";
 import { cacheDirectory } from "expo-file-system";
 import { useState } from "react";
-import { Uploading } from "./uploading";
+import { Uploading } from "./Uploading";
+import { AdmisObj, UploadInfo } from "./AdmissionObject";
+import { InitImageSet } from "./InitImageSet";
+import { Brands } from "./staticData/carBrands.json"
+import { Lots } from "./staticData/devLotData.json"
+import { InitAdmisObjTB, basicTBData } from "./AdmissionObjectTextBox";
 
 interface Props {
     admisObj: AdmisObj;
@@ -35,6 +34,7 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                         total: uploadInfo.total,
                         sent: uploadInfo.sent
                     });
+                    console.log(uploadInfo.isUploading);
                 }),
                 imageDir,
                 imageURIs
@@ -42,10 +42,12 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
         } catch (e) {
             console.log(e);
         }
-        setUploadInfo({ isUploading: false, total: 0, sent: 0 });
-        if (modalVisible) {
+        // If no images where sent then it was just a record log and don't need to wait for
+        // image download animation to finish playin to close outer modal.
+        if (uploadInfo.sent === 0 && modalVisible) {
             setModalVisible(false);
         }
+        setUploadInfo({ isUploading: false, total: 0, sent: 0 });
     }
 
     return (
@@ -69,7 +71,7 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                     </Pressable>
                     <View className="flex-1 pl-5 gap-5">
                         <Uploading
-                            onDismiss={() => { setModalVisible(false); }}
+                            onDismiss={() => { setModalVisible(false); }} // Once animation is done then close outer modal.
                             visible={uploadInfo.isUploading}
                             prog={uploadInfo.total ? uploadInfo.sent / uploadInfo.total * 100 : 0}
                         />

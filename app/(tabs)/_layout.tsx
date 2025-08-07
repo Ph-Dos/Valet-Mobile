@@ -2,8 +2,6 @@ import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
-
-
     return (
         <>
             <Tabs screenOptions={{
@@ -21,7 +19,7 @@ export default function TabLayout() {
                         return <MaterialIcons name="add-circle-outline" size={26} color={color} />;
                     }
                 }} />
-                <Tabs.Screen name='requests' options={{
+                <Tabs.Screen name='RequestsRoute' options={{
                     title: 'Requests',
                     headerShown: false,
                     tabBarInactiveTintColor: '#8D949D',
@@ -34,7 +32,7 @@ export default function TabLayout() {
                         color: 'white'
                     }
                 }} />
-                <Tabs.Screen name='inventory' options={{
+                <Tabs.Screen name='InventoryRoute' options={{
                     title: 'Inventory',
                     headerShown: false,
                     tabBarInactiveTintColor: '#8D949D',
@@ -42,7 +40,7 @@ export default function TabLayout() {
                         return <MaterialIcons name="search" size={26} color={color} />;
                     }
                 }} />
-                <Tabs.Screen name='profile' options={{
+                <Tabs.Screen name='ProfileRoute' options={{
                     title: 'Profile',
                     headerShown: false,
                     tabBarInactiveTintColor: '#8D949D',
