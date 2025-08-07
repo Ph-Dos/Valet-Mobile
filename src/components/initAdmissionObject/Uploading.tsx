@@ -1,5 +1,5 @@
 import { Modal } from "react-native";
-import { ProgBar } from "./progBar";
+import { ProgBar } from "./ProgressBar";
 
 interface Props {
     onDismiss: () => void;

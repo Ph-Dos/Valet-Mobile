@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { FlatList, View, Text, TextInput, TouchableOpacity, Animated } from "react-native";
-import { basicTBData } from "@/assets/initAdmissionObjectData/initAdmisObjTBData";
 
 /**
  * setData() should not use any, I need to think of a more robust way to transfer
  * the value selected from a TB to the AdmissionObject with out passing the entire AdmissionObject.
  */
+
+export interface basicTBData {
+    displayName: string;
+    searchName: string;
+}
 
 interface Props<T extends basicTBData> {
     data: Array<T>;
