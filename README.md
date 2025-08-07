@@ -6,4 +6,3 @@ Naming
 
 Code
 - Code style patterns and standards are held to [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html#source-file-basics)
->>>>>>> feat-admisObject
