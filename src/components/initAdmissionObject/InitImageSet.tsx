@@ -19,7 +19,7 @@ interface Props {
     modalVisible: boolean;
     imageDir: string;
     imageURIs: Array<string>;
-    setImageURIs: (updatedImages: Array<string>) => void;
+    setImageURIs: (updatedURIs: Array<string>) => void;
 }
 const option: ImagePickerOptions = {
     mediaTypes: 'images',
@@ -42,14 +42,12 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
         try {
             await requestCameraPermissionsAsync();
             const pickerResult = await launchCameraAsync(option);
-            // setUploading(true);
             if (!pickerResult.canceled) {
                 await loadImageToDir(pickerResult.assets[0].uri);
             }
         } catch (e) {
             alert("Upload failed.");
         }
-        // setUploading(false);
     }
 
     async function loadImageToDir(uri: string) {
