@@ -8,15 +8,22 @@ import { InitImageSet } from "./InitImageSet";
 import { Brands } from "./staticData/carBrands.json"
 import { Lots } from "./staticData/devLotData.json"
 import { InitAdmisObjTB, basicTBData } from "./AdmissionObjectTextBox";
+import { SimpleButton } from "../common/SimpleButton";
 
 interface Props {
     admisObj: AdmisObj;
     modalVisible: boolean;
     setModalVisible: (state: boolean) => void;
+    testID?: string;
 }
 const imageDir = cacheDirectory + 'images/';
 
-export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: Props) {
+export function InitAdmisObjModal({
+    admisObj,
+    modalVisible,
+    setModalVisible,
+    testID,
+}: Props) {
 
     const [activeId, setActiveId] = useState(0);
     const [imageURIs, setImageURIs] = useState<Array<string>>([]);
@@ -56,6 +63,7 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                 visible={modalVisible}
                 animationType="slide"
                 transparent={true}
+                testID={testID}
             >
                 <Pressable
                     onPress={() => { setModalVisible(false); }}
@@ -107,17 +115,12 @@ export function InitAdmisObjModal({ admisObj, modalVisible, setModalVisible }: P
                             imageURIs={imageURIs}
                             setImageURIs={(updatedURIs: Array<string>) => { setImageURIs(updatedURIs); }}
                         />
-                        <Pressable
+                    </View>
+                    <View className="self-center pb-10">
+                        <SimpleButton
                             onPress={() => { handleUpload(); }}
-                            className="pt-10"
-                        >
-                            <View
-                                className="bg-blue-400 rounded-2xl justify-center items-center"
-                                style={{ width: 360, height: 50 }}
-                            >
-                                <Text className="font-semibold text-xl text-[#1F1F1F]">Done</Text>
-                            </View>
-                        </Pressable>
+                            title={"Done"}
+                        />
                     </View>
                 </View>
             </Modal>

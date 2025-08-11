@@ -6,6 +6,11 @@
     .dev-view {
         @apply flex-1 items-center justify-center bg-[#1F1F1F]; /* This applies Tailwind's text-blue-500 utility */
     }
+    .button-simple {
+        @apply bg-blue-400 items-center justify-center rounded-2xl flex-row;
+    }
+    .text-button {
+        @apply font-semibold text-xl text-[#1F1F1F];
+    }
 }
-
 

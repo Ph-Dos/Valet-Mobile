@@ -2,6 +2,7 @@ import { AdmisObj } from "@/src/components/initAdmissionObject/AdmissionObject";
 import { InitAdmisObjModal } from "@/src/components/initAdmissionObject/InitAdmissionObjectModal";
 import { useState } from "react";
 import { View, Pressable, Text, TextInput, Keyboard } from "react-native";
+import { SimpleButton } from "@/src/components/common/SimpleButton";
 
 export function Receive() {
 
@@ -26,28 +27,25 @@ export function Receive() {
                 admisObj={admisObj}
                 modalVisible={modalVisible}
                 setModalVisible={setModalVisible}
+                testID={"InitAdmisObjModal"}
             />
             <View className="justify-center items-center gap-2">
                 <TextInput
                     value={textValue}
                     onChangeText={setTextValue}
                     keyboardType="number-pad"
-                    className="bg-[#181818] rounded-md text-white text-center text-xl"
-                    style={{ width: 340, height: 45 }}
+                    className="bg-[#181818] rounded-xl text-white text-center text-xl"
+                    style={{ width: 300, height: 40 }}
                     placeholder="123-456-7890"
                 />
-                <Text className="text-[#8D949D]">Guest's mobile number</Text>
+                <Text className="text-[#8D949D]">{!textValue ? "Enter guest's mobile number." : ""}</Text>
             </View>
-            <Pressable
+            <SimpleButton
                 onPress={() => { textValue && handleTextValue(); }}
-            >
-                <View
-                    className="bg-blue-400 rounded-2xl justify-center items-center"
-                    style={{ width: 360, height: 50 }}
-                >
-                    <Text className="font-semibold text-xl text-[#1F1F1F]">Park</Text>
-                </View>
-            </Pressable>
+                isDisabled={!textValue ? true : false}
+                title={"Park"}
+                testID={"ParkButton"}
+            />
         </Pressable>
     );
 }
