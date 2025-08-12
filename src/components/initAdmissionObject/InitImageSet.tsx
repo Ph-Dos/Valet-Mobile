@@ -5,30 +5,39 @@ import {
     requestCameraPermissionsAsync,
     launchCameraAsync,
 } from "expo-image-picker";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Text, Pressable, View, Image, FlatList, TouchableOpacity } from "react-native";
 import {
     getInfoAsync,
     makeDirectoryAsync,
     copyAsync,
     readDirectoryAsync,
-    deleteAsync
+    deleteAsync,
+    cacheDirectory
 } from "expo-file-system";
+import { URIsContext } from '../context/ImageURIContext';
 
 interface Props {
     modalVisible: boolean;
-    imageDir: string;
-    imageURIs: Array<string>;
-    setImageURIs: (updatedURIs: Array<string>) => void;
 }
+
 const option: ImagePickerOptions = {
     mediaTypes: 'images',
     allowsEditing: true,
     aspect: [4, 3]
 };
 const boxWidth: number = 370;
+const imageDir = cacheDirectory + 'images/';
 
-export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }: Props) {
+export function InitImageSet({ modalVisible }: Props) {
+
+    // This undefined error handling pisses me off.
+    const context = useContext(URIsContext);
+    if (context === undefined) {
+        throw Error("Context API has failed to provide ImageURI context.");
+    }
+
+    const { imageURIs, setImageURIs } = context;
     const [index, setIndex] = useState(0);
 
     async function initImageDir() {
@@ -46,7 +55,7 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
                 await loadImageToDir(pickerResult.assets[0].uri);
             }
         } catch (e) {
-            alert("Upload failed.");
+            console.log(e);
         }
     }
 
@@ -60,10 +69,6 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
             console.log(e);
         }
     }
-
-    useEffect(() => {
-        displayImages();
-    }, []);
 
     async function displayImages() {
         const dirInfo = await getInfoAsync(imageDir);
@@ -87,7 +92,6 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
             setImageURIs([]);
             setIndex(0);
         } else {
-            alert("Images were not freed correctly. Restart App.");
             throw Error("Images were not freed.");
         }
     }
@@ -111,6 +115,10 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
             setIndex(index - 1);
         }
     }
+
+    useEffect(() => {
+        displayImages();
+    }, []);
 
     useEffect(() => {
         try {
@@ -159,9 +167,7 @@ export function InitImageSet({ modalVisible, imageDir, imageURIs, setImageURIs }
                             color="white"
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => { takePhoto(); }}
-                    >
+                    <TouchableOpacity onPress={() => { takePhoto(); }} >
                         <Feather
                             name="plus-square"
                             size={26}

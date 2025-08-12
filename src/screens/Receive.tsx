@@ -3,6 +3,7 @@ import { InitAdmisObjModal } from "@/src/components/initAdmissionObject/InitAdmi
 import { useState } from "react";
 import { View, Pressable, Text, TextInput, Keyboard } from "react-native";
 import { SimpleButton } from "@/src/components/common/SimpleButton";
+import { ImageURIContext, URIsContext } from "../components/context/ImageURIContext";
 
 export function Receive() {
 
@@ -23,12 +24,14 @@ export function Receive() {
             onPress={Keyboard.dismiss}
             className="dev-view flex-1 gap-10 "
         >
-            <InitAdmisObjModal
-                admisObj={admisObj}
-                modalVisible={modalVisible}
-                setModalVisible={setModalVisible}
-                testID={"InitAdmisObjModal"}
-            />
+            <ImageURIContext>
+                <InitAdmisObjModal
+                    admisObj={admisObj}
+                    modalVisible={modalVisible}
+                    setModalVisible={setModalVisible}
+                    testID={"InitAdmisObjModal"}
+                />
+            </ImageURIContext>
             <View className="justify-center items-center gap-2">
                 <TextInput
                     value={textValue}

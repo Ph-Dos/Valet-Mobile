@@ -1,7 +1,6 @@
 import { Modal, View, SafeAreaView, Pressable, Text, TextInput } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { cacheDirectory } from "expo-file-system";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Uploading } from "./Uploading";
 import { AdmisObj, UploadInfo } from "./AdmissionObject";
 import { InitImageSet } from "./InitImageSet";
@@ -9,6 +8,7 @@ import { Brands } from "./staticData/carBrands.json"
 import { Lots } from "./staticData/devLotData.json"
 import { InitAdmisObjTB, basicTBData } from "./AdmissionObjectTextBox";
 import { SimpleButton } from "../common/SimpleButton";
+import { URIsContext } from '../context/ImageURIContext';
 
 interface Props {
     admisObj: AdmisObj;
@@ -16,7 +16,6 @@ interface Props {
     setModalVisible: (state: boolean) => void;
     testID?: string;
 }
-const imageDir = cacheDirectory + 'images/';
 
 export function InitAdmisObjModal({
     admisObj,
@@ -25,36 +24,41 @@ export function InitAdmisObjModal({
     testID,
 }: Props) {
 
+    // This undefined error handling pisses me off.
+    const context = useContext(URIsContext);
+    if (context === undefined) {
+        throw Error("Context API has failed to provide ImageURI context.");
+    }
+
+    const { imageURIs } = context;
     const [activeId, setActiveId] = useState(0);
-    const [imageURIs, setImageURIs] = useState<Array<string>>([]);
     const [uploadInfo, setUploadInfo] = useState<UploadInfo>({ isUploading: false, total: 0, sent: 0 });
 
     // NO GENERALIZING YOU TARD, MAKE IT WORK FIRST.
 
     async function handleUpload() {
         try {
-            await admisObj.upload(
-                uploadInfo,
-                (() => {
-                    setUploadInfo({
-                        isUploading: uploadInfo.isUploading,
-                        total: uploadInfo.total,
-                        sent: uploadInfo.sent
-                    });
-                    console.log(uploadInfo.isUploading);
-                }),
-                imageDir,
-                imageURIs
-            );
+            if (imageURIs.length > 0) {
+                await admisObj.upload(
+                    uploadInfo,
+                    (() => {
+                        setUploadInfo({
+                            isUploading: uploadInfo.isUploading,
+                            total: uploadInfo.total,
+                            sent: uploadInfo.sent
+                        });
+                        console.log(uploadInfo.isUploading);
+                    }),
+                    imageURIs
+                );
+                setUploadInfo({ isUploading: false, total: 0, sent: 0 });
+            } else {
+                await admisObj.upload();
+                setModalVisible(false);
+            }
         } catch (e) {
             console.log(e);
         }
-        // If no images where sent then it was just a record log and don't need to wait for
-        // image download animation to finish playin to close outer modal.
-        if (uploadInfo.sent === 0 && modalVisible) {
-            setModalVisible(false);
-        }
-        setUploadInfo({ isUploading: false, total: 0, sent: 0 });
     }
 
     return (
@@ -109,12 +113,7 @@ export function InitAdmisObjModal({
                             activeId={activeId}
                             placeholder="Lot"
                         />
-                        <InitImageSet
-                            modalVisible={modalVisible}
-                            imageDir={imageDir}
-                            imageURIs={imageURIs}
-                            setImageURIs={(updatedURIs: Array<string>) => { setImageURIs(updatedURIs); }}
-                        />
+                        <InitImageSet modalVisible={modalVisible} />
                     </View>
                     <View className="self-center pb-10">
                         <SimpleButton

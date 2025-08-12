@@ -37,20 +37,21 @@ export class AdmisObj {
     /**
      * Firebase methods
      */
-    public async upload<T extends UploadInfo>(uploadInfo: T, setUploadInfo: () => void, dirName?: string, URIs?: Array<string>,) {
-        this.uploadInfo = uploadInfo;
-        this.setuploadInfo = setUploadInfo;
+    public async upload<T extends UploadInfo>(uploadInfo?: T, setUploadInfo?: () => void, URIs?: Array<string>,) {
         try {
-            if (dirName && URIs) {
-                this.data.URLs = await this.uploadURIs(dirName, URIs);
+            if (uploadInfo && setUploadInfo && URIs) {
+                this.uploadInfo = uploadInfo;
+                this.setuploadInfo = setUploadInfo;
+                this.data.URLs = await this.uploadURIs(URIs);
             }
             this.saveRecord();
+            if (uploadInfo && setUploadInfo && URIs) {
+                this.uploadInfo.isUploading = false;
+                this.setuploadInfo();
+            }
             return true;
         } catch (e) {
             console.log(e);
-        } finally {
-            this.uploadInfo.isUploading = false;
-            this.setuploadInfo();
         }
     }
 
@@ -65,15 +66,7 @@ export class AdmisObj {
         }
     }
 
-    private async uploadURIs(dirName: string, URIs: Array<string>) {
-        const dir = await getInfoAsync(dirName);
-        if (!dir.exists) {
-            return [];
-        }
-        const dirInfo = await readDirectoryAsync(dirName);
-        if (dirInfo.length !== URIs.length) {
-            throw Error("file count does not match current URI count.");
-        }
+    private async uploadURIs(URIs: Array<string>) {
         this.uploadInfo.isUploading = true;
         this.setuploadInfo();
         const downloadPromises = URIs.map(async (URI: string, index: number) => {

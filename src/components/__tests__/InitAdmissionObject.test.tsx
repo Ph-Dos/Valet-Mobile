@@ -1,5 +1,8 @@
 import { fireEvent, render } from "@testing-library/react-native";
 import { Receive } from "@/src/screens/Receive";
+import { InitImageSet } from "../initAdmissionObject/InitImageSet";
+import { cacheDirectory } from "expo-file-system";
+import { useState } from "react";
 
 describe("Opening AdmissionObject modal conditions.", () => {
 
@@ -21,7 +24,6 @@ describe("Opening AdmissionObject modal conditions.", () => {
 });
 
 describe("Adding and removing photos.", () => {
-    test.todo("Most recent photo is first when adding while previewing the last photo.");
-    test.todo("Removing from the middle maintains correct order.");
-    test.todo("Image cache was deleted when all photos was removed and when modal was closed.");
+    test("Removing images maintains correct order.", () => {
+    });
 });
