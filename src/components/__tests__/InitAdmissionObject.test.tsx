@@ -8,7 +8,7 @@ describe("Opening AdmissionObject modal conditions.", () => {
      * the UI needs to be very informative so it obviouse this a number is required.
      */
 
-    it("ParkButton can only be pressed when text is entered to mobile number input.", () => {
+    test("ParkButton can only be pressed when text is entered to mobile number input.", () => {
         const screen = render(<Receive />);
         const ParkButton = screen.getByTestId("ParkButton");
         fireEvent.press(ParkButton);
@@ -21,8 +21,7 @@ describe("Opening AdmissionObject modal conditions.", () => {
 });
 
 describe("Adding and removing photos.", () => {
-    it.todo("Most recent photo is first when adding while previewing the last photo.");
-    it.todo("Removing from the middle maintains correct order.");
-    it.todo("Image cache was deleted when all photos was removed.");
-    it.todo("Image cache was deleted when modal was manually closed.");
+    test.todo("Most recent photo is first when adding while previewing the last photo.");
+    test.todo("Removing from the middle maintains correct order.");
+    test.todo("Image cache was deleted when all photos was removed and when modal was closed.");
 });
