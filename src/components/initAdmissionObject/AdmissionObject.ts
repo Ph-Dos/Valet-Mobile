@@ -1,4 +1,3 @@
-import { getInfoAsync, readDirectoryAsync } from "expo-file-system";
 import { storage, db } from "@/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { addDoc, collection } from "firebase/firestore";
@@ -9,8 +8,10 @@ export interface UploadInfo {
     sent: number;
 }
 
-interface Data {
-    phoneNumber?: string;
+// You can use general names when the import gives the interface context.
+
+export interface ObjectData {
+    phoneNumber: string;
     vehicleDetails: {
         plate?: string,
         brand?: string,
@@ -25,13 +26,17 @@ interface Data {
 }
 
 export class AdmisObj {
-    data: Data;
+    data: ObjectData;
     private uploadInfo: UploadInfo = { isUploading: false, total: 0, sent: 0 };
     private setuploadInfo = () => { return; };
 
 
     constructor(phoneNumber?: string) {
-        this.data = { phoneNumber: phoneNumber, vehicleDetails: {}, locationDetails: {} }
+        if (phoneNumber) {
+            this.data = { phoneNumber: phoneNumber, vehicleDetails: {}, locationDetails: {} };
+        } else {
+            this.data = { phoneNumber: "", vehicleDetails: {}, locationDetails: {} };
+        }
     }
 
     /**
