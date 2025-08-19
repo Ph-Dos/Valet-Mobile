@@ -6,11 +6,20 @@
     .dev-view {
         @apply flex-1 items-center justify-center bg-[#1F1F1F]; /* This applies Tailwind's text-blue-500 utility */
     }
+    .view-admisObject {
+        @apply w-[360px] h-[150px] bg-[#2A2A2A] rounded-2xl flex-row p-2 gap-5;
+    }
+    .view-admisObject-location {
+        @apply bg-[#333333] flex-grow rounded-2xl h-[130px] self-center shadow-md p-3 gap-3 pt-4;
+    }
     .button-simple {
         @apply bg-blue-400 items-center justify-center rounded-2xl flex-row;
     }
     .text-button {
         @apply font-semibold text-xl text-[#1F1F1F];
+    }
+    .util-center {
+        @apply items-center justify-center;
     }
 }
 

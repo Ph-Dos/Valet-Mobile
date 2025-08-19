@@ -1,0 +1,12 @@
+{
+    "Colors": [
+        {
+            "displayName": "Blue",
+            "searchName": "blue"
+        },
+        {
+            "displayName": "Red",
+            "searchName": "red"
+        }
+    ]
+}

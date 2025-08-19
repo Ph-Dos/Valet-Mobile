@@ -9,7 +9,7 @@ import Animated, {
     withTiming,
 } from "react-native-reanimated";
 
-export interface AnimatedBackgroundButtonProps {
+export interface Props {
     accessibilityHint?: string;
     accessibilityLabel?: string;
     Icon?: ReactElement;
@@ -35,7 +35,7 @@ export function SimpleButton({
     width = 360,
     height = 45,
     testID,
-}: AnimatedBackgroundButtonProps) {
+}: Props) {
     const transition = useSharedValue(0);
     const isActive = useSharedValue(false);
 

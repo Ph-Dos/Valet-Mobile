@@ -26,8 +26,8 @@ const option: ImagePickerOptions = {
     allowsEditing: true,
     aspect: [4, 3]
 };
-const boxWidth: number = 370;
-const imageDir = cacheDirectory + 'images/';
+const BOX_WIDTH: number = 370;
+const IMAGE_DIR = cacheDirectory + 'images/';
 
 export function InitImageSet({ modalVisible }: Props) {
 
@@ -41,9 +41,9 @@ export function InitImageSet({ modalVisible }: Props) {
     const [index, setIndex] = useState(0);
 
     async function initImageDir() {
-        const dirInfo = await getInfoAsync(imageDir);
+        const dirInfo = await getInfoAsync(IMAGE_DIR);
         if (!dirInfo.exists) {
-            await makeDirectoryAsync(imageDir, { intermediates: true });
+            await makeDirectoryAsync(IMAGE_DIR, { intermediates: true });
         }
     }
 
@@ -62,7 +62,7 @@ export function InitImageSet({ modalVisible }: Props) {
     async function loadImageToDir(uri: string) {
         try {
             await initImageDir();
-            const path = imageDir + new Date().getTime() + '.jpg';
+            const path = IMAGE_DIR + new Date().getTime() + '.jpg';
             await copyAsync({ from: uri, to: path });
             setImageURIs([path, ...imageURIs]);
         } catch (e) {
@@ -71,23 +71,23 @@ export function InitImageSet({ modalVisible }: Props) {
     }
 
     async function displayImages() {
-        const dirInfo = await getInfoAsync(imageDir);
+        const dirInfo = await getInfoAsync(IMAGE_DIR);
         if (!dirInfo.exists) {
             return
         }
-        const files = await readDirectoryAsync(imageDir);
+        const files = await readDirectoryAsync(IMAGE_DIR);
         if (files.length > 0) {
-            setImageURIs(files.map((file: string) => imageDir + file));
+            setImageURIs(files.map((file: string) => IMAGE_DIR + file));
         }
     }
 
     async function freeAllImages() {
-        let dirInfo = await getInfoAsync(imageDir);
+        let dirInfo = await getInfoAsync(IMAGE_DIR);
         if (!dirInfo.exists) {
             return
         }
-        await deleteAsync(imageDir, { idempotent: true });
-        dirInfo = await getInfoAsync(imageDir);
+        await deleteAsync(IMAGE_DIR, { idempotent: true });
+        dirInfo = await getInfoAsync(IMAGE_DIR);
         if (!dirInfo.exists) {
             setImageURIs([]);
             setIndex(0);
@@ -97,16 +97,16 @@ export function InitImageSet({ modalVisible }: Props) {
     }
 
     async function freeImage() {
-        let files = await readDirectoryAsync(imageDir);
+        let files = await readDirectoryAsync(IMAGE_DIR);
         if (files.length === 1 && imageURIs.length === 1) {
-            await deleteAsync(imageDir, { idempotent: true });
+            await deleteAsync(IMAGE_DIR, { idempotent: true });
             setImageURIs([]);
             setIndex(0);
             return
         }
         await deleteAsync(imageURIs[index], { idempotent: true });
         const reducedArray = imageURIs.filter((_, indexOfValue) => indexOfValue !== index);
-        files = await readDirectoryAsync(imageDir);
+        files = await readDirectoryAsync(IMAGE_DIR);
         if (files.length !== reducedArray.length) {
             throw Error("Uneven image to URI count.");
         }
@@ -135,7 +135,7 @@ export function InitImageSet({ modalVisible }: Props) {
             <Pressable
                 onPress={() => { takePhoto(); }}
                 className="bg-[#333333] rounded-xl justify-center items-center"
-                style={{ width: boxWidth, height: 220 }}
+                style={{ width: BOX_WIDTH, height: 220 }}
             >
                 <MaterialCommunityIcons
                     name="file-image-plus-outline"
@@ -147,7 +147,7 @@ export function InitImageSet({ modalVisible }: Props) {
         );
     } else {
         return (
-            <View style={{ width: boxWidth, height: 300 }} >
+            <View style={{ width: BOX_WIDTH, height: 300 }} >
                 <View
                     className='flex-row justify-between pt-3'
                     style={{ height: 50 }}
@@ -177,7 +177,7 @@ export function InitImageSet({ modalVisible }: Props) {
                 </View>
                 <FlatList
                     onMomentumScrollEnd={(ev) => {
-                        setIndex(Math.floor(ev.nativeEvent.contentOffset.x / boxWidth));
+                        setIndex(Math.floor(ev.nativeEvent.contentOffset.x / BOX_WIDTH));
                     }}
                     data={imageURIs}
                     keyExtractor={item => item.toString()}
@@ -185,7 +185,7 @@ export function InitImageSet({ modalVisible }: Props) {
                         return (
                             <Image
                                 source={{ uri: item }}
-                                style={{ width: boxWidth, height: 220 }}
+                                style={{ width: BOX_WIDTH, height: 220 }}
                                 className='rounded-xl'
                             />
                         );

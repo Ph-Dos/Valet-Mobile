@@ -1,42 +1,49 @@
-import { Modal, View, SafeAreaView, Pressable, Text, TextInput } from "react-native";
+import { Modal, View, SafeAreaView, Pressable, Text, TextInput, Keyboard } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Uploading } from "./Uploading";
-import { AdmisObj, UploadInfo } from "./AdmissionObject";
+import { UploadInfo } from "./AdmissionObject";
 import { InitImageSet } from "./InitImageSet";
 import { Brands } from "./staticData/carBrands.json"
 import { Lots } from "./staticData/devLotData.json"
-import { InitAdmisObjTB, basicTBData } from "./AdmissionObjectTextBox";
+import { InitAdmisObjTB } from "./AdmissionObjectTextBox";
 import { SimpleButton } from "../common/SimpleButton";
 import { URIsContext } from '../context/ImageURIContext';
+import { Colors } from "./staticData/colors.json";
+import { ObjectContext } from "../context/AdmissionObjectContext";
+import { DependentTB } from "./DependentTextBox";
+import { Models } from "./staticData/models.json";
 
 interface Props {
-    admisObj: AdmisObj;
     modalVisible: boolean;
     setModalVisible: (state: boolean) => void;
     testID?: string;
 }
 
-export function InitAdmisObjModal({
-    admisObj,
-    modalVisible,
-    setModalVisible,
-    testID,
-}: Props) {
-
-    // This undefined error handling pisses me off.
-    const context = useContext(URIsContext);
-    if (context === undefined) {
+export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Props) {
+    const contextURIs = useContext(URIsContext);
+    if (contextURIs === undefined) {
         throw Error("Context API has failed to provide ImageURI context.");
     }
-
-    const { imageURIs } = context;
-    const [activeId, setActiveId] = useState(0);
+    const contextObject = useContext(ObjectContext);
+    if (contextObject === undefined) {
+        throw Error("Context API has failed to provide AdmissiobObject context.");
+    }
+    const { admisObj, setAdmisObj } = contextObject;
+    const { imageURIs } = contextURIs;
     const [uploadInfo, setUploadInfo] = useState<UploadInfo>({ isUploading: false, total: 0, sent: 0 });
+    const [plate, setPlate] = useState<string | undefined>(undefined);
 
     // NO GENERALIZING YOU TARD, MAKE IT WORK FIRST.
 
+    useEffect(() => {
+        if (plate) {
+            setPlate(undefined);
+        }
+    }, [modalVisible]);
+
     async function handleUpload() {
+        setInput(plate, (plate: string) => { admisObj.setPlate(plate) });
         try {
             if (imageURIs.length > 0) {
                 await admisObj.upload(
@@ -59,6 +66,12 @@ export function InitAdmisObjModal({
         } catch (e) {
             console.log(e);
         }
+        console.log(admisObj);
+    }
+
+    function setInput(input: any, setter: ((x: any) => void)) {
+        setter(input);
+        setAdmisObj(admisObj);
     }
 
     return (
@@ -73,7 +86,10 @@ export function InitAdmisObjModal({
                     onPress={() => { setModalVisible(false); }}
                     style={{ height: 100 }}
                 />
-                <View className="flex-1 bg-[#2A2A2A] rounded-t-2xl" >
+                <Pressable
+                    onPress={Keyboard.dismiss}
+                    className="flex-1 bg-[#2A2A2A] rounded-t-2xl"
+                >
                     <Pressable
                         onPress={() => { setModalVisible(false); }}
                         className="items-end p-3 pr-5 self-end"
@@ -89,29 +105,34 @@ export function InitAdmisObjModal({
                         />
                         <Text className="font-bold text-[#8D949D] text-2xl ">Vehicle Details</Text>
                         <TextInput
-                            onPress={() => { setActiveId(0); }}
+                            value={plate}
+                            onChangeText={(text: string) => { setPlate(text); }}
                             autoCapitalize="characters"
                             className="bg-[#181818] rounded-xl text-white text-xl pl-4"
                             style={{ width: 370, height: 40 }}
-                            returnKeyType="done"
-                            placeholder="License plate"
+                            returnKeyType={"done"}
+                            placeholder={"License plate"}
                         />
-                        <InitAdmisObjTB<basicTBData>
+                        <InitAdmisObjTB
                             data={Brands}
-                            id={1}
-                            setActiveId={setActiveId}
-                            setData={(brand) => { admisObj.setBrand(brand); }}
-                            activeId={activeId}
-                            placeholder="Brand"
+                            setData={(brand) => { setInput(brand, (input: string) => { admisObj.setBrand(input); }) }}
+                            placeholder={"Brand"}
+                        />
+                        <DependentTB
+                            data={Models}
+                            setData={(model) => { setInput(model, (input: string) => { admisObj.setModel(input); }) }}
+                            placeholder={"Model"}
+                        />
+                        <InitAdmisObjTB
+                            data={Colors}
+                            setData={(color) => { setInput(color, (input: string) => { admisObj.setColor(input); }) }}
+                            placeholder={"Color"}
                         />
                         <Text className="font-bold text-[#8D949D] text-2xl ">Location Details</Text>
-                        <InitAdmisObjTB<basicTBData>
+                        <InitAdmisObjTB
                             data={Lots}
-                            id={2}
-                            setActiveId={setActiveId}
-                            setData={(lot) => { admisObj.setLot(lot); }}
-                            activeId={activeId}
-                            placeholder="Lot"
+                            setData={(lot) => { setInput(lot, (input: string) => { admisObj.setLot(input); }) }}
+                            placeholder={"Lot"}
                         />
                         <InitImageSet modalVisible={modalVisible} />
                     </View>
@@ -121,7 +142,7 @@ export function InitAdmisObjModal({
                             title={"Done"}
                         />
                     </View>
-                </View>
+                </Pressable>
             </Modal>
         </SafeAreaView>
     );

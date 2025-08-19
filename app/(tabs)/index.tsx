@@ -1,5 +1,10 @@
+import { AdmissionObjectContext } from "@/src/components/context/AdmissionObjectContext";
 import { Receive } from "@/src/screens/Receive";
 
 export default function ReceiveRoute() {
-    return Receive();
+    return (
+        <AdmissionObjectContext>
+            <Receive />
+        </AdmissionObjectContext>
+    );
 }

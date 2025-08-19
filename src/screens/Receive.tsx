@@ -1,15 +1,20 @@
 import { AdmisObj } from "@/src/components/initAdmissionObject/AdmissionObject";
 import { InitAdmisObjModal } from "@/src/components/initAdmissionObject/InitAdmissionObjectModal";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { View, Pressable, Text, TextInput, Keyboard } from "react-native";
 import { SimpleButton } from "@/src/components/common/SimpleButton";
-import { ImageURIContext, URIsContext } from "../components/context/ImageURIContext";
+import { ImageURIContext } from "../components/context/ImageURIContext";
+import { ObjectContext } from "../components/context/AdmissionObjectContext";
 
 export function Receive() {
 
-    const [textValue, setTextValue] = useState<undefined | string>(undefined);
+    const [textValue, setTextValue] = useState<string | undefined>(undefined);
     const [modalVisible, setModalVisible] = useState(false);
-    const [admisObj, setAdmisObj] = useState(new AdmisObj());
+    const context = useContext(ObjectContext);
+    if (context === undefined) {
+        throw Error("Context API has failed to provide AdmissiobObject context.");
+    }
+    const { setAdmisObj } = context;
 
     // This is to test the ability to collect the string in the phone number box.
     const handleTextValue = (): void => {
@@ -26,7 +31,6 @@ export function Receive() {
         >
             <ImageURIContext>
                 <InitAdmisObjModal
-                    admisObj={admisObj}
                     modalVisible={modalVisible}
                     setModalVisible={setModalVisible}
                     testID={"InitAdmisObjModal"}
@@ -36,6 +40,7 @@ export function Receive() {
                 <TextInput
                     value={textValue}
                     onChangeText={setTextValue}
+                    maxLength={10}
                     keyboardType="number-pad"
                     className="bg-[#181818] rounded-xl text-white text-center text-xl"
                     style={{ width: 300, height: 40 }}
@@ -45,7 +50,7 @@ export function Receive() {
             </View>
             <SimpleButton
                 onPress={() => { textValue && handleTextValue(); }}
-                isDisabled={!textValue ? true : false}
+                isDisabled={!textValue || textValue.length < 3 ? true : false}
                 title={"Park"}
                 testID={"ParkButton"}
             />

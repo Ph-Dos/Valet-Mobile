@@ -11,38 +11,40 @@ export interface UploadInfo {
 // You can use general names when the import gives the interface context.
 
 export interface ObjectData {
-    phoneNumber: string;
-    vehicleDetails: {
+    phoneNumber?: string;
+    vehicleDetails?: {
         plate?: string,
         brand?: string,
+        model?: string,
         bodyStyle?: number,
         color?: string
     };
-    locationDetails: {
+    locationDetails?: {
         lot?: string,
-        floor?: number
+        floor?: number,
+        space?: number,
     };
-    URLs?: Array<string>;
+    URLs?: string[];
 }
 
 export class AdmisObj {
     data: ObjectData;
     private uploadInfo: UploadInfo = { isUploading: false, total: 0, sent: 0 };
-    private setuploadInfo = () => { return; };
+    private setuploadInfo = () => { };
 
 
     constructor(phoneNumber?: string) {
         if (phoneNumber) {
             this.data = { phoneNumber: phoneNumber, vehicleDetails: {}, locationDetails: {} };
         } else {
-            this.data = { phoneNumber: "", vehicleDetails: {}, locationDetails: {} };
+            this.data = {};
         }
     }
 
     /**
      * Firebase methods
      */
-    public async upload<T extends UploadInfo>(uploadInfo?: T, setUploadInfo?: () => void, URIs?: Array<string>,) {
+    public async upload<T extends UploadInfo>(uploadInfo?: T, setUploadInfo?: () => void, URIs?: string[],) {
         try {
             if (uploadInfo && setUploadInfo && URIs) {
                 this.uploadInfo = uploadInfo;
@@ -71,7 +73,7 @@ export class AdmisObj {
         }
     }
 
-    private async uploadURIs(URIs: Array<string>) {
+    private async uploadURIs(URIs: string[]) {
         this.uploadInfo.isUploading = true;
         this.setuploadInfo();
         const downloadPromises = URIs.map(async (URI: string, index: number) => {
@@ -97,17 +99,33 @@ export class AdmisObj {
      * vehicleDetails methods
      */
     public setPlate(plate: string) {
-        this.data.vehicleDetails.plate = plate;
+        if (this.data.vehicleDetails) {
+            this.data.vehicleDetails.plate = plate;
+        }
     }
-    public setBrand(brand: string) {
-        this.data.vehicleDetails.brand = brand;
+    public setBrand(brand: string | undefined) {
+        if (this.data.vehicleDetails) {
+            this.data.vehicleDetails.brand = brand;
+        }
+    }
+    public setModel(model: string) {
+        if (this.data.vehicleDetails) {
+            this.data.vehicleDetails.model = model;
+        }
+    }
+    public setColor(color: string) {
+        if (this.data.vehicleDetails) {
+            this.data.vehicleDetails.color = color;
+        }
     }
 
     /**
      * locationDetails methods
      */
     public setLot(lot: string) {
-        this.data.locationDetails.lot = lot;
+        if (this.data.locationDetails) {
+            this.data.locationDetails.lot = lot;
+        }
     }
 
 }

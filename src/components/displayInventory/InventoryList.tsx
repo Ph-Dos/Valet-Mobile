@@ -1,11 +1,28 @@
-import { Text } from 'react-native';
+import { SafeAreaView, Text } from 'react-native';
 import { db } from '@/firebaseConfig';
 import { collection, onSnapshot, Unsubscribe } from 'firebase/firestore';
 import { useEffect, useState, useRef } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { ObjectData } from '../initAdmissionObject/AdmissionObject';
+import { FlatList } from "react-native";
+import { AdmisObjView } from '../common/AdmissionObjectView';
 
 const DB_PATH = "/admissionObjects";
+
+const DEV_DATA: ObjectData[] = [{
+    phoneNumber: "7707707770",
+    vehicleDetails: {
+        plate: "6Z47DJ1",
+        bodyStyle: 0,
+        brand: "Honda",
+        color: "Red",
+    },
+    locationDetails: {
+        lot: "Some Lot",
+        floor: 1,
+        space: 35,
+    },
+}];
 
 export function InventoryList() {
 
@@ -34,16 +51,24 @@ export function InventoryList() {
 
     useEffect(() => {
         if (focused && !unsubscriber.current) {
-            console.log("Mounting...");
+            console.log("Mounting listener...");
             mountDBListener();
         } else if (unsubscriber.current) {
-            console.log("Demounting Inventory listener...");
+            console.log("Demounting listener...");
             unsubscriber.current();
             unsubscriber.current = undefined;
         }
     }, [focused]);
 
     return (
-        <Text className="font-bold text-white">Hello</Text>
+        <SafeAreaView>
+            <FlatList
+                data={DEV_DATA}
+                renderItem={(({ item }) =>
+                    <AdmisObjView data={item} />
+                )}
+                className={"pt-10"}
+            />
+        </SafeAreaView>
     );
 }
