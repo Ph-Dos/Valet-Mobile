@@ -1,6 +1,6 @@
 import { Modal, View, SafeAreaView, Pressable, Text, TextInput, Keyboard } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { Uploading } from "./Uploading";
 import { UploadInfo } from "./AdmissionObject";
 import { InitImageSet } from "./InitImageSet";
@@ -13,6 +13,7 @@ import { Colors } from "./staticData/colors.json";
 import { ObjectContext } from "../context/AdmissionObjectContext";
 import { DependentTB } from "./DependentTextBox";
 import { Models } from "./staticData/models.json";
+import { StringInputTB } from "./StringInputTextBox";
 
 interface Props {
     modalVisible: boolean;
@@ -32,19 +33,12 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
     const { admisObj, setAdmisObj } = contextObject;
     const { imageURIs } = contextURIs;
     const [uploadInfo, setUploadInfo] = useState<UploadInfo>({ isUploading: false, total: 0, sent: 0 });
-    const [plate, setPlate] = useState<string | undefined>(undefined);
-    const requiredValues = [useRef(false), useRef(false)];
+    const [filledOut, setFilledOut] = useState<[boolean, boolean, boolean]>([false, false, false]);
 
     // NO GENERALIZING YOU TARD, MAKE IT WORK FIRST.
 
-    function handleDissmiss() {
-        requiredValues[0].current = false;
-        requiredValues[1].current = false;
-        plate && setPlate(undefined);
-    }
-
     async function handleUpload() {
-        setInput(plate, (plate: string) => { admisObj.setPlate(plate) });
+        // plate && setInput(plate, (plate: string) => { admisObj.setPlate(plate) });
         try {
             if (imageURIs.length > 0) {
                 await admisObj.upload(
@@ -70,6 +64,10 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
         console.log(admisObj);
     }
 
+    function handleDismiss() {
+        setFilledOut([false, false, false]);
+    }
+
     function setInput(input: any, setter: ((x: any) => void)) {
         setter(input);
         setAdmisObj(admisObj);
@@ -82,7 +80,7 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                 animationType="slide"
                 transparent={true}
                 testID={testID}
-                onDismiss={handleDissmiss}
+                onDismiss={handleDismiss}
             >
                 <Pressable
                     onPress={() => { setModalVisible(false); }}
@@ -106,36 +104,47 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                             prog={uploadInfo.total ? uploadInfo.sent / uploadInfo.total * 100 : 0}
                         />
                         <Text className="font-bold text-[#8D949D] text-2xl ">Vehicle Details</Text>
-                        <TextInput
-                            value={plate}
-                            onChangeText={(text: string) => { setPlate(text); }}
-                            autoCapitalize="characters"
-                            className="bg-[#181818] rounded-xl text-white text-xl pl-4"
-                            style={{ width: 370, height: 40 }}
-                            returnKeyType={"done"}
-                            placeholder={"License plate"}
+                        <StringInputTB
+                            setData={(input) => { setInput(input, (input: string | undefined) => { admisObj.setPlate(input); }) }}
+                            condition={(input: string) => { return input.length >= 6; }}
+                            filledOut={filledOut[0]}
+                            setFilledOut={(value: boolean) => {
+                                setInput(value, (input: boolean) => { setFilledOut([input, filledOut[1], filledOut[2]]); })
+                            }}
                         />
                         <InitAdmisObjTB
                             data={Brands}
                             setData={(brand) => { setInput(brand, (input: string | undefined) => { admisObj.setBrand(input); }) }}
-                            required={requiredValues[0]}
+                            filledOut={filledOut[1]}
+                            setFilledOut={(value: boolean) => {
+                                setInput(value, (input: boolean) => { setFilledOut([filledOut[0], input, filledOut[2]]); })
+                            }}
                             placeholder={"Brand"}
                         />
                         <DependentTB
                             data={Models}
-                            setData={(model) => { setInput(model, (input: string | undefined) => { admisObj.setModel(input); }) }}
+                            setData={(model) => {
+                                setInput(model, (input: string | undefined) => { admisObj.setModel(input); })
+                            }}
                             placeholder={"Model"}
                         />
                         <InitAdmisObjTB
                             data={Colors}
-                            setData={(color) => { setInput(color, (input: string | undefined) => { admisObj.setColor(input); }) }}
-                            required={requiredValues[1]}
+                            setData={(color) => {
+                                setInput(color, (input: string | undefined) => { admisObj.setColor(input); })
+                            }}
+                            filledOut={filledOut[2]}
+                            setFilledOut={(value: boolean) => {
+                                setInput(value, (input: boolean) => { setFilledOut([filledOut[0], filledOut[1], input]); });
+                            }}
                             placeholder={"Color"}
                         />
                         <Text className="font-bold text-[#8D949D] text-2xl ">Location Details</Text>
                         <InitAdmisObjTB
                             data={Lots}
-                            setData={(lot) => { setInput(lot, (input: string | undefined) => { admisObj.setLot(input); }) }}
+                            setData={(lot) => {
+                                setInput(lot, (input: string | undefined) => { admisObj.setLot(input); })
+                            }}
                             placeholder={"Lot"}
                         />
                         <InitImageSet modalVisible={modalVisible} />
@@ -144,6 +153,7 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                         <SimpleButton
                             onPress={() => { handleUpload(); }}
                             title={"Done"}
+                            isDisabled={filledOut.includes(false)}
                         />
                     </View>
                 </Pressable>

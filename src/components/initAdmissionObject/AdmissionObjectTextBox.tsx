@@ -1,4 +1,4 @@
-import { RefObject, useState } from "react";
+import { useState } from "react";
 import { FlatList, View, Text, TextInput, TouchableOpacity, Animated, Keyboard } from "react-native";
 import Feather from '@expo/vector-icons/Feather';
 
@@ -19,19 +19,26 @@ export interface BasicTBData {
 interface Props {
     data: BasicTBData[];
     setData: (value: any) => void;
-    required?: RefObject<boolean>;
+    filledOut?: boolean;
+    setFilledOut?: (value: boolean) => void;
     placeholder: string;
 }
 
-export function InitAdmisObjTB({ data, setData, required, placeholder }: Props) {
+export function InitAdmisObjTB({
+    data,
+    setData,
+    filledOut,
+    setFilledOut,
+    placeholder
+}: Props) {
     const [textValue, setTextValue] = useState<string | undefined>(undefined);
     const [focus, setFocus] = useState(false);
 
     function handleSelection(item: BasicTBData) {
         setData(item.searchName);
         setTextValue(item.displayName);
-        if (required) {
-            required.current = true;
+        if (setFilledOut) {
+            !filledOut && setFilledOut(true);
         }
         Keyboard.dismiss();
         setFocus(false);
@@ -49,16 +56,16 @@ export function InitAdmisObjTB({ data, setData, required, placeholder }: Props) 
                     value={textValue}
                     onChangeText={(text: string) => {
                         setTextValue(text);
-                        if (required && required.current) {
+                        if (setFilledOut && filledOut) {
                             setData(undefined);
-                            required.current = false;
+                            setFilledOut(false);
                         }
                     }}
                     className="bg-[#181818] rounded-xl text-white text-xl pl-4"
                     style={{ width: 370, height: 40 }}
                     placeholder={placeholder}
                 />
-                {required && required.current &&
+                {setFilledOut && filledOut &&
                     <Feather
                         name="check"
                         size={25}
@@ -66,7 +73,7 @@ export function InitAdmisObjTB({ data, setData, required, placeholder }: Props) 
                         className="absolute right-2 top-2.5"
                     />
                 }
-                {required && !required.current &&
+                {setFilledOut && !filledOut &&
                     <Feather
                         name="alert-circle"
                         size={25}
@@ -75,7 +82,7 @@ export function InitAdmisObjTB({ data, setData, required, placeholder }: Props) 
                     />
                 }
             </View>
-            {focus &&
+            {focus && data &&
                 <FlatList
                     data={data}
                     keyboardShouldPersistTaps={"handled"}
