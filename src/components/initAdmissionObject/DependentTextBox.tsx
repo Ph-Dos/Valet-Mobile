@@ -23,10 +23,13 @@ export function DependentTB({ data, setData, placeholder }: Props) {
 
     function findRenderList() {
         if (!admisObj.data.vehicleDetails?.brand) {
-            console.log(admisObj.data.vehicleDetails?.brand);
+            // console.log(admisObj.data.vehicleDetails?.brand);
+            renderKey.current = undefined;
+            renderList.current = undefined;
             return;
         }
         if (admisObj.data.vehicleDetails.brand === renderKey.current) {
+            console.log("Same");
             return;
         }
         for (const object of data) {

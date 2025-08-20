@@ -33,14 +33,15 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
     const { imageURIs } = contextURIs;
     const [uploadInfo, setUploadInfo] = useState<UploadInfo>({ isUploading: false, total: 0, sent: 0 });
     const [plate, setPlate] = useState<string | undefined>(undefined);
+    const requiredValues = [useRef(false), useRef(false)];
 
     // NO GENERALIZING YOU TARD, MAKE IT WORK FIRST.
 
-    useEffect(() => {
-        if (plate) {
-            setPlate(undefined);
-        }
-    }, [modalVisible]);
+    function handleDissmiss() {
+        requiredValues[0].current = false;
+        requiredValues[1].current = false;
+        plate && setPlate(undefined);
+    }
 
     async function handleUpload() {
         setInput(plate, (plate: string) => { admisObj.setPlate(plate) });
@@ -81,6 +82,7 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                 animationType="slide"
                 transparent={true}
                 testID={testID}
+                onDismiss={handleDissmiss}
             >
                 <Pressable
                     onPress={() => { setModalVisible(false); }}
@@ -97,7 +99,7 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                     >
                         <MaterialCommunityIcons name="window-close" size={30} color="white" />
                     </Pressable>
-                    <View className="flex-1 pl-5 gap-5">
+                    <View className="flex-1 pl-6 gap-5">
                         <Uploading
                             onDismiss={() => { setModalVisible(false); }} // Once animation is done then close outer modal.
                             visible={uploadInfo.isUploading}
@@ -115,23 +117,25 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                         />
                         <InitAdmisObjTB
                             data={Brands}
-                            setData={(brand) => { setInput(brand, (input: string) => { admisObj.setBrand(input); }) }}
+                            setData={(brand) => { setInput(brand, (input: string | undefined) => { admisObj.setBrand(input); }) }}
+                            required={requiredValues[0]}
                             placeholder={"Brand"}
                         />
                         <DependentTB
                             data={Models}
-                            setData={(model) => { setInput(model, (input: string) => { admisObj.setModel(input); }) }}
+                            setData={(model) => { setInput(model, (input: string | undefined) => { admisObj.setModel(input); }) }}
                             placeholder={"Model"}
                         />
                         <InitAdmisObjTB
                             data={Colors}
-                            setData={(color) => { setInput(color, (input: string) => { admisObj.setColor(input); }) }}
+                            setData={(color) => { setInput(color, (input: string | undefined) => { admisObj.setColor(input); }) }}
+                            required={requiredValues[1]}
                             placeholder={"Color"}
                         />
                         <Text className="font-bold text-[#8D949D] text-2xl ">Location Details</Text>
                         <InitAdmisObjTB
                             data={Lots}
-                            setData={(lot) => { setInput(lot, (input: string) => { admisObj.setLot(input); }) }}
+                            setData={(lot) => { setInput(lot, (input: string | undefined) => { admisObj.setLot(input); }) }}
                             placeholder={"Lot"}
                         />
                         <InitImageSet modalVisible={modalVisible} />

@@ -98,7 +98,7 @@ export class AdmisObj {
     /**
      * vehicleDetails methods
      */
-    public setPlate(plate: string) {
+    public setPlate(plate: string | undefined) {
         if (this.data.vehicleDetails) {
             this.data.vehicleDetails.plate = plate;
         }
@@ -108,12 +108,12 @@ export class AdmisObj {
             this.data.vehicleDetails.brand = brand;
         }
     }
-    public setModel(model: string) {
+    public setModel(model: string | undefined) {
         if (this.data.vehicleDetails) {
             this.data.vehicleDetails.model = model;
         }
     }
-    public setColor(color: string) {
+    public setColor(color: string | undefined) {
         if (this.data.vehicleDetails) {
             this.data.vehicleDetails.color = color;
         }
@@ -122,7 +122,7 @@ export class AdmisObj {
     /**
      * locationDetails methods
      */
-    public setLot(lot: string) {
+    public setLot(lot: string | undefined) {
         if (this.data.locationDetails) {
             this.data.locationDetails.lot = lot;
         }
