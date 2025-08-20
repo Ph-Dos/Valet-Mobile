@@ -4,19 +4,23 @@ import React from "react";
 import { ObjectData } from "../initAdmissionObject/AdmissionObject";
 
 interface Props {
-    data: ObjectData;
+    object: ObjectData;
 }
 
 interface TextBlockProps {
-    data: string;
+    title: string;
     value: string | number;
 }
 
-export function AdmisObjView({ data }: Props) {
-    if (!data.locationDetails || !data.vehicleDetails) {
-        return;
+export function AdmisObjView({ object }: Props) {
+    const { vehicleDetails, locationDetails } = object;
+    if (!vehicleDetails || !locationDetails) {
+        return <></>
+    } else if (!vehicleDetails.brand || !vehicleDetails.color || !vehicleDetails.plate) {
+        return <></>
+    } else if (!locationDetails.lot || !locationDetails.floor || !locationDetails.space) {
+        return <></>
     }
-    const { vehicleDetails, locationDetails } = data;
     return (
         <Pressable>
             <Animated.View
@@ -24,24 +28,24 @@ export function AdmisObjView({ data }: Props) {
             >
                 <View className={"util-center"}>
                     <Image source={require("../../assets/images/honda-civic.png")} />
-                    <Text className={"font-bold text-white text-[20px]"}>67FAS123</Text>
+                    <Text className={"font-bold text-white text-[20px]"}>{vehicleDetails.plate}</Text>
                     <Text className={"text-[#8D949D] text-[15px]"}>{vehicleDetails.color + " " + vehicleDetails.brand}</Text>
                 </View>
                 <View className={"view-admisObject-location"}>
-                    <TextBlock data={"Lot"} value={locationDetails.lot} />
-                    <TextBlock data={"Floor"} value={locationDetails.floor} />
-                    <TextBlock data={"Space"} value={"432"} />
+                    <TextBlock title={"Lot"} value={locationDetails.lot} />
+                    <TextBlock title={"Floor"} value={locationDetails.floor} />
+                    <TextBlock title={"Space"} value={locationDetails.space} />
                 </View>
             </Animated.View>
         </Pressable>
     );
 }
 
-function TextBlock({ data, value }: TextBlockProps) {
+function TextBlock({ title, value }: TextBlockProps) {
     return (
         <View className={"flex-row justify-between"}>
-            <Text className={"text-white text-[18px] font-semibold"}>{data}</Text>
-            <View className={"bg-blue-400 p-0.5 pl-1.5 rounded-l"}>
+            <Text className={"text-white text-[18px] font-semibold"}>{title}</Text>
+            <View className={"bg-blue-400 p-0.5 pl-1.5 pr-1.5 rounded-l"}>
                 <Text className={"text-white text-[18px] font-semibold"}>{value}</Text>
             </View>
         </View>

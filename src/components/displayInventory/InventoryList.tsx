@@ -63,11 +63,12 @@ export function InventoryList() {
     return (
         <SafeAreaView>
             <FlatList
-                data={DEV_DATA}
+                data={admissionObjects}
                 renderItem={(({ item }) =>
-                    <AdmisObjView data={item} />
+                    <AdmisObjView object={item} />
                 )}
-                className={"pt-10"}
+                className="pt-10"
+                contentContainerClassName="gap-5"
             />
         </SafeAreaView>
     );

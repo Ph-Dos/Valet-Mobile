@@ -127,5 +127,15 @@ export class AdmisObj {
             this.data.locationDetails.lot = lot;
         }
     }
+    public setFloor(floor: number | undefined) {
+        if (this.data.locationDetails) {
+            this.data.locationDetails.floor = floor;
+        }
+    }
+    public setSpace(space: number | undefined) {
+        if (this.data.locationDetails) {
+            this.data.locationDetails.space = space;
+        }
+    }
 
 }

@@ -1,4 +1,4 @@
-import { Modal, View, SafeAreaView, Pressable, Text, TextInput, Keyboard } from "react-native";
+import { Modal, View, SafeAreaView, Pressable, Text, TextInput, Keyboard, ScrollView, FlatList } from "react-native";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useContext, useState } from "react";
 import { Uploading } from "./Uploading";
@@ -21,6 +21,9 @@ interface Props {
     testID?: string;
 }
 
+const FLOOR_MAX = 8;
+const SPACE_MAX = 100;
+
 export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Props) {
     const contextURIs = useContext(URIsContext);
     if (contextURIs === undefined) {
@@ -33,7 +36,14 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
     const { admisObj, setAdmisObj } = contextObject;
     const { imageURIs } = contextURIs;
     const [uploadInfo, setUploadInfo] = useState<UploadInfo>({ isUploading: false, total: 0, sent: 0 });
-    const [filledOut, setFilledOut] = useState<[boolean, boolean, boolean]>([false, false, false]);
+    const [filledOut, setFilledOut] = useState<[boolean, boolean, boolean, boolean, boolean, boolean]>([
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+    ]);
 
     // NO GENERALIZING YOU TARD, MAKE IT WORK FIRST.
 
@@ -65,7 +75,7 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
     }
 
     function handleDismiss() {
-        setFilledOut([false, false, false]);
+        setFilledOut([false, false, false, false, false, false]);
     }
 
     function setInput(input: any, setter: ((x: any) => void)) {
@@ -87,7 +97,6 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                     style={{ height: 100 }}
                 />
                 <Pressable
-                    onPress={Keyboard.dismiss}
                     className="flex-1 bg-[#2A2A2A] rounded-t-2xl"
                 >
                     <Pressable
@@ -97,27 +106,32 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                     >
                         <MaterialCommunityIcons name="window-close" size={30} color="white" />
                     </Pressable>
-                    <View className="flex-1 pl-6 gap-5">
+                    <View className="flex-1 pl-6 gap-4">
                         <Uploading
                             onDismiss={() => { setModalVisible(false); }} // Once animation is done then close outer modal.
                             visible={uploadInfo.isUploading}
                             prog={uploadInfo.total ? uploadInfo.sent / uploadInfo.total * 100 : 0}
                         />
-                        <Text className="font-bold text-[#8D949D] text-2xl ">Vehicle Details</Text>
+                        <Text className="font-bold text-[#8D949D] text-[20px]  ">Vehicle Details</Text>
                         <StringInputTB
                             setData={(input) => { setInput(input, (input: string | undefined) => { admisObj.setPlate(input); }) }}
                             condition={(input: string) => { return input.length >= 6; }}
                             filledOut={filledOut[0]}
                             setFilledOut={(value: boolean) => {
-                                setInput(value, (input: boolean) => { setFilledOut([input, filledOut[1], filledOut[2]]); })
+                                setInput(value, (input: boolean) => {
+                                    setFilledOut([input, filledOut[1], filledOut[2], filledOut[3], filledOut[4], filledOut[5]]);
+                                })
                             }}
+                            placeholder={"License Plate"}
                         />
                         <InitAdmisObjTB
                             data={Brands}
                             setData={(brand) => { setInput(brand, (input: string | undefined) => { admisObj.setBrand(input); }) }}
                             filledOut={filledOut[1]}
                             setFilledOut={(value: boolean) => {
-                                setInput(value, (input: boolean) => { setFilledOut([filledOut[0], input, filledOut[2]]); })
+                                setInput(value, (input: boolean) => {
+                                    setFilledOut([filledOut[0], input, filledOut[2], filledOut[3], filledOut[4], filledOut[5]]);
+                                });
                             }}
                             placeholder={"Brand"}
                         />
@@ -135,17 +149,57 @@ export function InitAdmisObjModal({ modalVisible, setModalVisible, testID }: Pro
                             }}
                             filledOut={filledOut[2]}
                             setFilledOut={(value: boolean) => {
-                                setInput(value, (input: boolean) => { setFilledOut([filledOut[0], filledOut[1], input]); });
+                                setInput(value, (input: boolean) => {
+                                    setFilledOut([filledOut[0], filledOut[1], input, filledOut[3], filledOut[4], filledOut[5]]);
+                                });
                             }}
                             placeholder={"Color"}
                         />
-                        <Text className="font-bold text-[#8D949D] text-2xl ">Location Details</Text>
+                        <Text className="font-bold text-[#8D949D] text-[20px] ">Location Details</Text>
                         <InitAdmisObjTB
                             data={Lots}
                             setData={(lot) => {
                                 setInput(lot, (input: string | undefined) => { admisObj.setLot(input); })
                             }}
+                            filledOut={filledOut[3]}
+                            setFilledOut={(value: boolean) => {
+                                setInput(value, (input: boolean) => {
+                                    setFilledOut([filledOut[0], filledOut[1], filledOut[2], input, filledOut[4], filledOut[5]]);
+                                });
+                            }}
                             placeholder={"Lot"}
+                        />
+                        <StringInputTB
+                            setData={(input) => {
+                                setInput(input, (input: string | undefined) => {
+                                    admisObj.setFloor(input ? Number(input) : undefined);
+                                });
+                            }}
+                            condition={(input: string) => { return Number(input) <= FLOOR_MAX; }}
+                            filledOut={filledOut[4]}
+                            setFilledOut={(value: boolean) => {
+                                setInput(value, (input: boolean) => {
+                                    setFilledOut([filledOut[0], filledOut[1], filledOut[2], filledOut[3], input, filledOut[5]]);
+                                })
+                            }}
+                            keyboardType={"number-pad"}
+                            placeholder={"Floor"}
+                        />
+                        <StringInputTB
+                            setData={(input) => {
+                                setInput(input, (input: string | undefined) => {
+                                    admisObj.setSpace(input ? Number(input) : undefined);
+                                });
+                            }}
+                            condition={(input: string) => { return Number(input) <= SPACE_MAX; }}
+                            filledOut={filledOut[5]}
+                            setFilledOut={(value: boolean) => {
+                                setInput(value, (input: boolean) => {
+                                    setFilledOut([filledOut[0], filledOut[1], filledOut[2], filledOut[3], filledOut[4], input]);
+                                })
+                            }}
+                            keyboardType={"number-pad"}
+                            placeholder={"Space"}
                         />
                         <InitImageSet modalVisible={modalVisible} />
                     </View>

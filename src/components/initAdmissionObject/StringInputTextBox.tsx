@@ -1,19 +1,28 @@
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
-import { TextInput, View } from "react-native";
+import { Keyboard, TextInput, View } from "react-native";
 
 interface Props {
-    setData: (value: string | undefined) => void;
+    setData: (value: any) => void;
     condition: (value: string) => boolean;
     filledOut: boolean;
     setFilledOut: (value: boolean) => void;
+    keyboardType?: "default" | "number-pad";
+    placeholder?: string;
 }
 
-export function StringInputTB({ setData, condition, filledOut, setFilledOut }: Props) {
+export function StringInputTB({
+    setData,
+    condition,
+    filledOut,
+    setFilledOut,
+    keyboardType = "default",
+    placeholder = "",
+}: Props) {
     const [textValue, setTextValue] = useState<string | undefined>(undefined);
 
     function handleTextChange(text: string) {
-        if (condition && condition(text)) {
+        if (condition && text.length > 0 && condition(text)) {
             setData(text);
             setFilledOut(true);
         } else if (filledOut) {
@@ -35,7 +44,8 @@ export function StringInputTB({ setData, condition, filledOut, setFilledOut }: P
                 className="bg-[#181818] rounded-xl text-white text-xl pl-4"
                 style={{ width: 370, height: 40 }}
                 returnKeyType={"done"}
-                placeholder={"License plate"}
+                placeholder={placeholder}
+                keyboardType={keyboardType}
             />
             {filledOut &&
                 <Feather
